@@ -1,0 +1,1123 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>GeodeDB</title>
+    <style>
+    </style>
+</head>
+<body>
+    <div id="prompt-box-backdrop" class="box-backdrop" >
+        <div id="prompt-box" class="input-popup" >
+            <div id="prompt-box-text" class="input-box-text"></div>
+            <div id="prompt-box-input"></div>
+            <div id="prompt-box-go" class="green-button input-box-button">
+                <div>OK</div>
+            </div>
+            <div id="prompt-box-cancel"  class="red-button input-box-button">
+                <div>Cancel</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="confirm-box-backdrop" class="box-backdrop" >
+        <div id="confirm-box" class="input-popup" >
+            <div id="confirm-box-text" class="input-box-text"></div>
+            <div id="confirm-box-go" class="green-button input-box-button">
+                <div>Yes</div>
+            </div>
+            <div id="confirm-box-cancel" class="red-button input-box-button">
+                <div>No</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="add-file-errors-backdrop">
+        <div id="add-file-errors-panel">
+            <div class="add-file-error-header">
+                The parser found&nbsp;<span id="add-file-error-number"></span>&nbsp;errors in&nbsp;<span id="add-file-error-name"></span>:
+            </div>
+            <div id="add-file-error-main">
+
+            </div>
+            <div class="add-file-ok-button green-button" onclick="ui.close_addfile_popups()">
+                <div>OK</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="add-file-good-backdrop">
+        <div id="add-file-good-panel">
+            <div class="add-file-good-header">
+                The parser found no errors in&nbsp;<span id="add-file-good-name"></span>.<br /><br />
+                Please choose how you want the program to deal with duplicate items:
+            </div>
+
+            <div id="add-file-good-main">
+                <form id="add-file-form">
+                    <table id="file-add-radiotable">
+                        <tr>
+                            <td style="text-align:center">
+                                <input type="radio" name="fadd-radio" value="3" checked />
+                            </td>
+                            <td>
+                                Add anyway
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="text-align:center">
+                                <input type="radio" name="fadd-radio" value="2" />
+                            </td>
+                            <td>
+                                Overwrite
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="text-align:center">
+                                <input type="radio" name="fadd-radio" value="1" />
+                            </td>
+                            <td>
+                                Skip
+                            </td>
+                        </tr>
+                    </table><br />
+                </form>
+            </div>
+            <div class="add-file-ok-button green-button" onclick="ui.add_from_file(1)">
+                <div>Add items</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="id-help-panel" class="help-panel">
+        <h1>Help</h1>
+        <h2>
+            Tables
+        </h2>
+        Tables are split into two types - Collection tables and the Mineral table. There is only one Mineral table, and it cannot be destroyed.<br /><br />
+        It stores information about mineral types, acting as an in-program mini encyclopedia. Collection tables store information about a specific collection
+        of minerals, you can have as many of these as you want.<br /><br />
+        Collection tables can be created, deleted and swapped between using the drop down menu in the top left corner.
+        <h2>
+            Searching
+        </h2>
+        The search panel contains many ways to filter results. The blank box at the top will search in any column, and the boxes below will search in a specific
+        database column, for example only name.<br /><br />
+        Clicking search when all search boxes are blank will show every result in the table.<br /><br />
+        Some numeric search boxes, for example cost, allow you to filter results based on values higher, lower or equal to the value in the search box. This also works
+        with dates, individual date fields can be left blank, the program will consider filled fields. This means that if you only fill in the day as the 20th and select
+        'less than' comparison the program will find all entries bought before the 20th day of any month of any year.<br /><br />
+        The 'And' and 'Or' radio button specify whether the program should find entries that match every condition ('And') or any of the conditions ('Or').
+        <h2>
+            The result list
+        </h2>
+        Entries matching the search conditions will be shown in the middle panel. Clicking on a result will display that entry in full in the rightmost panel,
+        where they can then be edited or deleted.<br /><br />
+        Results can be sorted by some column values - for example, you can sort collection results by purchase number. Sortable columns are indicated by arrows next to their
+        name on the top bar, clicking on these arrows changes the sorting.<br /><br />
+        There are more columns available than those shown by default - right click on the top panel to disable and enable columns at will. Any column can be resized by dragging
+        the right-hand edge of the column title.
+        <h2>
+            Bulk adding from CSV
+        </h2>
+        In the bottom right is a button labelled 'Add from CSV'. This enables you to add entries to the current table en masse using a specially formatted  CSV exported
+        from Excel. A sample Excel document is provided in this program's install directory - usually C:/Program Files (x86)/GeodeDB/<br /><br />
+        Once a file is selected, if there are any formatting or syntactical errors the program will tell you to fix them. Once there are no errors, you will be prompted to
+        choose how to deal with duplicate items.<br /><br />
+        For collection tables, a duplicate item is defined as one that has the same purchase number and order in purchase as an existing item, and for the Minerals table it is
+        defined as one with the same name as an existing item. Duplicates can either be ignored, written over the existing item or added anyway.
+        <h2>
+            The program directory
+        </h2>
+        The database and configuration for the program are stored in 3 folders: Config, Database and Images. If you chose a portable installation, these are in the program's install
+        directory, which by default is 'My Documents/GeodeDB'. If you did not choose a static installation, they are located in 'C:/Users/[your name]/AppData/Roaming/GeodeDB'.<br /><br />
+        The HTML file that defines the appearance and function of the GUI is [install location]/ui/ui.html. This file is compiled from ui/ui_src.html, the CSS files in ui/style and the JavaScript
+        files in ui/scripts using 'Generate ui.html from component files.exe'. This allows you to customise the GUI freely, but make sure you back up all of the source files first.
+    </div>
+
+    <div id="rclick-context-mineral" class="rclick-context">
+        <form>
+            <ul class="checkbox-list">
+                <li>
+                    <label for="mcheck-name">Name</label>
+                    <input id="mcheck-name" type="checkbox" onclick="ui.toggle_mineral_column(this.id)" />
+                </li>
+                <li>
+                    <label for="mcheck-varieties">Varieties</label>
+                    <input id="mcheck-varieties" type="checkbox" onclick="ui.toggle_mineral_column(this.id)" />
+                </li>
+                <li>
+                    <label for="mcheck-description">Description</label>
+                    <input id="mcheck-description" type="checkbox" onclick="ui.toggle_mineral_column(this.id)" />
+                </li>
+                <li>
+                    <label for="mcheck-colours">Colours</label>
+                    <input id="mcheck-colours" type="checkbox" onclick="ui.toggle_mineral_column(this.id)" />
+                </li>
+                <li>
+                    <label for="mcheck-structure">Crystal structure</label>
+                    <input id="mcheck-structure" type="checkbox" onclick="ui.toggle_mineral_column(this.id)" />
+                </li>
+                <li>
+                    <label for="mcheck-composition">Chemical formula</label>
+                    <input id="mcheck-composition" type="checkbox" onclick="ui.toggle_mineral_column(this.id)" />
+                </li>
+                <li>
+                    <label for="mcheck-images">Image count</label>
+                    <input id="mcheck-images" type="checkbox" onclick="ui.toggle_mineral_column(this.id)" />
+                </li>
+                <li>
+                    <label for="mcheck-category">Category</label>
+                    <input id="mcheck-category" type="checkbox" onclick="ui.toggle_mineral_column(this.id)" />
+                </li>
+                <li>
+                    <label for="mcheck-pagenumber">Page number</label>
+                    <input id="mcheck-pagenumber" type="checkbox" onclick="ui.toggle_mineral_column(this.id)" />
+                </li>
+            </ul>
+        </form>
+    </div>
+
+    <div id="rclick-context-collection" class="rclick-context">
+        <form>
+            <ul class="checkbox-list">
+                <li>
+                    <label for="ccheck-number">Purchase number</label>
+                    <input id="ccheck-number" type="checkbox" onclick="ui.toggle_collection_column(this.id)" />
+                </li>
+                <li>
+                    <label for="ccheck-order">Order in purchase</label>
+                    <input id="ccheck-order" type="checkbox" onclick="ui.toggle_collection_column(this.id)" />
+                </li>
+                <li>
+                    <label for="ccheck-name">Name</label>
+                    <input id="ccheck-name" type="checkbox" onclick="ui.toggle_collection_column(this.id)" />
+                </li>
+                <li>
+                    <label for="ccheck-type">Mineral type</label>
+                    <input id="ccheck-type" type="checkbox" onclick="ui.toggle_collection_column(this.id)" />
+                </li>
+                <li>
+                    <label for="ccheck-description">Description</label>
+                    <input id="ccheck-description" type="checkbox" onclick="ui.toggle_collection_column(this.id)" />
+                </li>
+                <li>
+                    <label for="ccheck-colours">Colours</label>
+                    <input id="ccheck-colours" type="checkbox" onclick="ui.toggle_collection_column(this.id)" />
+                </li>
+                <li>
+                    <label for="ccheck-date">Date of purchase</label>
+                    <input id="ccheck-date" type="checkbox" onclick="ui.toggle_collection_column(this.id)" />
+                </li>
+                <li>
+                    <label for="ccheck-purchaseplace">Place of purchase</label>
+                    <input id="ccheck-purchaseplace" type="checkbox" onclick="ui.toggle_collection_column(this.id)" />
+                </li>
+                <li>
+                    <label for="ccheck-notes">Notes</label>
+                    <input id="ccheck-notes" type="checkbox" onclick="ui.toggle_collection_column(this.id)" />
+                </li>
+                <li>
+                    <label for="ccheck-cost">Cost (&pound;)</label>
+                    <input id="ccheck-cost" type="checkbox" onclick="ui.toggle_collection_column(this.id)" />
+                </li>
+                <li>
+                    <label for="ccheck-buyer">Buyer</label>
+                    <input id="ccheck-buyer" type="checkbox" onclick="ui.toggle_collection_column(this.id)" />
+                </li>
+                <li>
+                    <label for="ccheck-location">Location</label>
+                    <input id="ccheck-location" type="checkbox" onclick="ui.toggle_collection_column(this.id)" />
+                </li>
+                <li>
+                    <label for="ccheck-images">Image count</label>
+                    <input id="ccheck-images" type="checkbox" onclick="ui.toggle_collection_column(this.id)" />
+                </li>
+                <li>
+                    <label for="ccheck-texture">Texture</label>
+                    <input id="ccheck-texture" type="checkbox" onclick="ui.toggle_collection_column(this.id)" />
+                </li>
+            </ul>
+        </form>
+    </div>
+
+    <!--
+    |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+    -->
+
+    <div class="main-panel search-panel">
+
+        <div id="search-top-panel-container">
+            <div class="dropdown">
+                <div class="table-tab" id="collection-tab">
+                    <div id="collection-tab-text-wrapper" onclick="ui.activate_collection_table()">
+                        <div id="collection-tab-text">
+
+                        </div>
+                    </div>
+                    <div id="dropdown-arrow-container" onclick="ui.dropdown()">
+                        <img id="dropdown-arrow-id" class="dropdown-arrow" src="resource/arrow_down_centered.png" />
+                    </div>
+                </div><!--
+                --><div class="dropdown-content" id="dropdown-menu">
+                    <div id="dropdown-divider">
+
+                    </div>
+                    <div class="dropdown-content" onclick="ui.get_table_name()" style="padding-bottom:0.1em">
+                        Add new table
+                    </div>
+                </div>
+            </div>
+            <div class="dropdown" id ="mineral-tab-wrapper">
+                <div class="table-tab" id="mineral-tab" onclick="ui.activate_mineral_table()">
+                <div>Mineral types</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="search-input-panel" id="collection-search-input-panel">
+            <div class="search-top-heading search-heading">
+                Search
+            </div><!--
+            --><div class="search-top-heading activate-help-button">
+                <span class="tooltip help-button" style="text-decoration:underline;border:0px;" onclick="ui.help_popup()">
+                    Help
+                    <span class="tooltiptext">Show help window</span>
+                </span>
+            </div>
+            <form class="search-form" id="collection-search-form" onsubmit="return false;">
+                <input type="text" name="main-search" class="input-box" /><br /><br />
+                <table class="radiotable">
+                    <tr>
+                        <td class="oppositeradio search-heading" style="padding-bottom:5px;">
+                            Search&nbsp;in&nbsp;fields:
+                        </td>
+                        <td class="radiocolumn">
+                            <input id="c-radio-and" type="radio" name="c-andor" value="and" onclick="ui.set_mask('c-and')" />
+                        </td>
+                        <td class="radiocolumnlabel">
+                            And
+                        </td>
+                        <td class="radiocolumn">
+                            <input id="c-radio-or" type="radio" name="c-andor" value="or" onclick="ui.set_mask('c-or')" />
+                        </td>
+                        <td class="radiocolumnlabel">
+                            Or
+                        </td>
+                    </tr>
+                </table>
+
+                Name<br />
+                <input type="text" name="name-search" class="input-box" placeholder="e.g. jasper" /><br />
+
+                Purchase number<br />
+                <table class="radiotable">
+                    <tr>
+                        <td class="oppositeradio">
+                            <input type="number" min="1" name="purchase-num-search" class="input-box" placeholder="e.g. 31" /><br />
+                        </td class="radiocolumn">
+
+                        <td class="radiocolumn">
+                            <input id="radio-num-less" type="radio" name="numcomp" value="-1" onclick="ui.set_mask('num', this.value)" />
+                        </td>
+                        <td class="radiocolumnlabel">
+                            <
+                        </td>
+                        <td class="radiocolumn">
+                            <input id="radio-num-equal" type="radio" name="numcomp" value="0" onclick="ui.set_mask('num', this.value)" />
+                        </td>
+                        <td class="radiocolumnlabel">
+                            =
+                        </td>
+                        <td class="radiocolumn">
+                            <input id="radio-num-greater" type="radio" name="numcomp" value="1" onclick="ui.set_mask('num', this.value)" />
+                        </td>
+                        <td class="radiocolumnlabel">
+                            >
+                        </td>
+                    </tr>
+                </table>
+
+                Acquisition date<br />
+                <table class="radiotable smalltext-table">
+                    <tr>
+                        <td class="oppositeradio">
+                            <table>
+                                <tr>
+                                    <td style="width:25%">
+                                        <input style="text-align:center;" type="number" min="1" max="31" name="date-day-search" class="input-box" placeholder="dd" />
+                                    </td>
+                                    <td style="width:5%">-</td>
+                                    <td style="width:25%">
+                                        <input style="text-align:center;" type="number" min="1" max="12" name="date-month-search" class="input-box" placeholder="mm" />
+                                    </td>
+                                    <td style="width:5%">-</td>
+                                    <td style="width:40%">
+                                        <input style="text-align:center;" type="number" min="1000" max="9999" name="date-year-search" class="input-box" placeholder="yyyy" />
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+
+                        <td class="radiocolumn">
+                            <input id="radio-date-less" type="radio" name="datecomp" value="-1" onclick="ui.set_mask('date', this.value)" />
+                        </td>
+                        <td class="radiocolumnlabel">
+                            Before
+                        </td>
+                        <td class="radiocolumn">
+                            <input id="radio-date-equal" type="radio" name="datecomp" value="0" onclick="ui.set_mask('date', this.value)" />
+                        </td>
+                        <td class="radiocolumnlabel">
+                            On
+                        </td>
+                        <td class="radiocolumn">
+                            <input id="radio-date-greater" type="radio" name="datecomp" value="1" onclick="ui.set_mask('date', this.value)" />
+                        </td>
+                        <td class="radiocolumnlabel">
+                            After
+                        </td>
+                    </tr>
+                </table>
+
+                Cost<br />
+                <table class="radiotable">
+                    <tr>
+                        <td class="oppositeradio">
+                            <span style="position:absolute;margin-top:27%;color:#aaaaaa;margin-left:0.3em;z-index:99">&pound;</span><input type="number" min="0" step="0.01" style="padding-left:1.2em;" placeholder="0.50" name="cost-search" class="input-box" /><br />
+                        </td class="radiocolumn">
+
+                        <td class="radiocolumn">
+                            <input id="radio-cost-less" type="radio" name="costcomp" value="-1" onclick="ui.set_mask('cost', this.value)" />
+                        </td>
+                        <td class="radiocolumnlabel">
+                            <
+                        </td>
+                        <td class="radiocolumn">
+                            <input id="radio-cost-equal" type="radio" name="costcomp" value="0" onclick="ui.set_mask('cost', this.value)" />
+                        </td>
+                        <td class="radiocolumnlabel">
+                            =
+                        </td>
+                        <td class="radiocolumn">
+                            <input id="radio-cost-greater" type="radio" name="costcomp" value="1" onclick="ui.set_mask('cost', this.value)" />
+                        </td>
+                        <td class="radiocolumnlabel">
+                            >
+                        </td>
+                    </tr>
+                </table>
+
+                Mineral<br />
+                <input type="text" name="mineral-search" class="input-box" placeholder="e.g. calcite" /><br />
+
+                Colours<br />
+                <input type="text" name="colour-search" class="input-box" placeholder="e.g. red, green" /><br />
+
+                Description<br />
+                <input type="text" name="description-search" class="input-box" placeholder="e.g. stripes" /><br />
+
+                Notes<br />
+                <input type="text" name="notes-search" class="input-box" placeholder="e.g. birthday"/><br />
+
+                Purchase location<br />
+                <input type="text" name="purchase-search" class="input-box" placeholder="e.g. exeter" /><br />
+
+                Display location<br />
+                <input type="text" name="location-search" class="input-box" placeholder="e.g. bowl" /><br />
+
+                Buyer<br />
+                <input type="text" name="buyer-search" class="input-box" placeholder="e.g. dad" /><br />
+
+                <table class="radiotable search-action-buttons">
+                    <tr>
+                        <td style="width:30%;">
+                            <button class="search-panel-button green-button" type="button" onclick="ui.clear_collection_form()">Clear</button>
+                        </td>
+                        <td style="width:40%">
+                            <button class="search-panel-button darkgreen-button" type="button" onclick="ui.search_collection_db()">Search</button>
+                        </td>
+                        <td style="width:30%">
+                            <button class="search-panel-button green-button" type="button" onclick="ui.new_item('collection')">New</button>
+                        </td>
+                    </tr>
+                </table>
+
+            </form>
+        </div>
+
+        <div class="search-input-panel" id="mineral-search-input-panel">
+            <div class="search-top-heading search-heading">
+                Search
+            </div><!--
+            --><div class="search-top-heading activate-help-button">
+                <span class="tooltip help-button" style="text-decoration:underline;border:0px" onclick="ui.help_popup()">
+                    Help
+                    <span class="tooltiptext">Show help window</span>
+                </span>
+            </div>
+            <form class="search-form" id="mineral-search-form" onsubmit="return false;">
+                <input type="text" name="main-search" class="input-box" /><br /><br />
+                <table class="radiotable">
+                    <tr>
+                        <td class="oppositeradio search-heading" style="padding-bottom:5px;">
+                            Search&nbsp;in&nbsp;fields:
+                        </td>
+                        <td class="radiocolumn">
+                            <input id="m-radio-and" type="radio" name="m-andor" value="and" onclick="ui.set_mask('m-and')" />
+                        </td>
+                        <td class="radiocolumnlabel">
+                            And
+                        </td>
+                        <td class="radiocolumn">
+                            <input id="m-radio-or" type="radio" name="m-andor" value="or" onclick="ui.set_mask('m-or')" />
+                        </td>
+                        <td class="radiocolumnlabel">
+                            Or
+                        </td>
+                    </tr>
+                </table><br />
+
+                Name<br />
+                <input type="text" name="name-search" class="input-box" placeholder="e.g. aragonite" /><br />
+
+                Varieties<br />
+                <input type="text" name="variety-search" class="input-box" placeholder="e.g. travertine" /><br />
+
+                Colours<br />
+                <input type="text" name="colours-search" class="input-box" placeholder="e.g. blue"/><br />
+
+                Description<br />
+                <input type="text" name="description-search" class="input-box" placeholder="e.g. stripes" /><br />
+
+                Crystal structure<br />
+                <input type="text" name="structure-search" class="input-box" placeholder="e.g. orthorhombic" /><br />
+
+                Composition<br />
+                <input type="text" name="composition-search" class="input-box" placeholder="e.g. Ca" /><br />
+
+                Nickel-Strunz Category<br />
+                <input type="text" name="category-search" class="input-box" placeholder="e.g. Carbonates" /><br />
+
+                <table class="radiotable search-action-buttons">
+                    <tr>
+                        <td style="width:30%">
+                            <button class="search-panel-button green-button" type="button" onclick="ui.clear_mineral_form()">Clear</button>
+                        </td>
+                        <td style="width:40%">
+                            <button class="search-panel-button darkgreen-button" type="button" onclick="ui.search_mineral_db()">Search</button>
+                        </td>
+                        <td style="width:30%">
+                            <button class="search-panel-button green-button" type="button" onclick="ui.new_item('mineral')">New</button>
+                        </td>
+                    </tr>
+                </table>
+
+            </form>
+        </div>
+
+    </div>
+
+    <!--
+    |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+    -->
+
+    <div class="main-panel results-panel" id="collection-results-panel">
+        <div class="result-topbar" id="collection-results-topbar"><!--
+
+            --><div class="sorting-tab ccol-number sortable" id="clab-number">
+                <table class="sorting-tab-label-wrapper">
+                    <tr>
+                        <td class="sorting-tab-label">
+                            Purchase number
+                        </td>
+                    </tr>
+                </table>
+                <div class="sorting-tab-arrow" onclick="ui.change_collection_sorting_mask(1)">
+                    <img id="c-number-sorting-arrow" src="resource/arrow_dual.png" />
+                </div>
+                <div class="resize-region"></div>
+            </div><!--
+
+            ---><div class="sorting-tab ccol-order" id="clab-order">
+                <table class="sorting-tab-label-wrapper">
+                    <tr>
+                        <td class="sorting-tab-label">
+                            Order in purchase
+                        </td>
+                    </tr>
+                </table>
+                <div class="resize-region"></div>
+            </div><!--
+
+            ---><div class="sorting-tab ccol-name sortable" id="clab-name">
+                <table class="sorting-tab-label-wrapper">
+                    <tr>
+                        <td class="sorting-tab-label">
+                            Name
+                        </td>
+                    </tr>
+                </table>
+                <div class="sorting-tab-arrow" onclick="ui.change_collection_sorting_mask(0)">
+                    <img id="c-name-sorting-arrow" src="resource/arrow_dual.png" />
+                </div>
+                <div class="resize-region"></div>
+            </div><!--
+
+            ---><div class="sorting-tab ccol-type sortable" id="clab-type">
+                <table class="sorting-tab-label-wrapper">
+                    <tr>
+                        <td class="sorting-tab-label">
+                            Mineral type
+                        </td>
+                    </tr>
+                </table>
+                <div class="sorting-tab-arrow" onclick="ui.change_collection_sorting_mask(4)">
+                    <img id="c-type-sorting-arrow" src="resource/arrow_dual.png" />
+                </div>
+                <div class="resize-region"></div>
+            </div><!--
+
+            ---><div class="sorting-tab ccol-description" id="clab-description">
+                <table class="sorting-tab-label-wrapper">
+                    <tr>
+                        <td class="sorting-tab-label">
+                            Description
+                        </td>
+                    </tr>
+                </table>
+                <div class="resize-region"></div>
+            </div><!--
+
+            ---><div class="sorting-tab ccol-colours" id="clab-colours">
+                <table class="sorting-tab-label-wrapper">
+                    <tr>
+                        <td class="sorting-tab-label">
+                            Colours
+                        </td>
+                    </tr>
+                </table>
+                <div class="resize-region"></div>
+            </div><!--
+
+            ---><div class="sorting-tab ccol-date sortable" id="clab-date">
+                <table class="sorting-tab-label-wrapper">
+                    <tr>
+                        <td class="sorting-tab-label">
+                            Date of purchase
+                        </td>
+                    </tr>
+                </table>
+                <div class="sorting-tab-arrow" onclick="ui.change_collection_sorting_mask(2)">
+                    <img id="c-date-sorting-arrow" src="resource/arrow_dual.png" />
+                </div>
+                <div class="resize-region"></div>
+            </div><!--
+
+            ---><div class="sorting-tab ccol-purchaseplace" id="clab-purchaseplace">
+                <table class="sorting-tab-label-wrapper">
+                    <tr>
+                        <td class="sorting-tab-label">
+                            Place of purchase
+                        </td>
+                    </tr>
+                </table>
+                <div class="resize-region"></div>
+            </div><!--
+
+            ---><div class="sorting-tab ccol-notes" id="clab-notes">
+                <table class="sorting-tab-label-wrapper">
+                    <tr>
+                        <td class="sorting-tab-label">
+                            Notes
+                        </td>
+                    </tr>
+                </table>
+                <div class="resize-region"></div>
+            </div><!--
+
+            ---><div class="sorting-tab ccol-cost sortable" id="clab-cost">
+                <table class="sorting-tab-label-wrapper">
+                    <tr>
+                        <td class="sorting-tab-label">
+                            Cost
+                        </td>
+                    </tr>
+                </table>
+                <div class="sorting-tab-arrow" onclick="ui.change_collection_sorting_mask(3)">
+                    <img id="c-cost-sorting-arrow" src="resource/arrow_dual.png" />
+                </div>
+                <div class="resize-region"></div>
+            </div><!--
+
+            ---><div class="sorting-tab ccol-buyer" id="clab-buyer">
+                <table class="sorting-tab-label-wrapper">
+                    <tr>
+                        <td class="sorting-tab-label">
+                            Buyer
+                        </td>
+                    </tr>
+                </table>
+                <div class="resize-region"></div>
+            </div><!--
+
+            ---><div class="sorting-tab ccol-location" id="clab-location">
+                <table class="sorting-tab-label-wrapper">
+                    <tr>
+                        <td class="sorting-tab-label">
+                            Location
+                        </td>
+                    </tr>
+                </table>
+                <div class="resize-region"></div>
+            </div><!--
+
+            ---><div class="sorting-tab ccol-images" id="clab-images">
+                <table class="sorting-tab-label-wrapper">
+                    <tr>
+                        <td class="sorting-tab-label">
+                            Image count
+                        </td>
+                    </tr>
+                </table>
+                <div class="resize-region"></div>
+            </div><!--
+
+            ---><div class="sorting-tab ccol-texture" id="clab-texture">
+                <table class="sorting-tab-label-wrapper">
+                    <tr>
+                        <td class="sorting-tab-label">
+                            Texture
+                        </td>
+                    </tr>
+                </table>
+                <div class="resize-region"></div>
+            </div><!--
+
+        --></div>
+
+        <div class="result-line-container" id="collection-result-line-container">
+
+        </div>
+
+    </div>
+
+    <div class="main-panel results-panel" id="mineral-results-panel">
+        <div class="result-topbar" id="mineral-results-topbar">
+
+
+            <div class="sorting-tab mcol-name sortable" id="mlab-name">
+                <table class="sorting-tab-label-wrapper">
+                    <tr>
+                        <td class="sorting-tab-label">
+                            Name
+                        </td>
+                    </tr>
+                </table>
+                <div class="sorting-tab-arrow" onclick="ui.change_mineral_sorting_mask()">
+                    <img id="m-name-sorting-arrow" src="resource/arrow_dual.png" />
+                </div>
+                <div class="resize-region"></div>
+            </div><!--
+
+            ---><div class="sorting-tab mcol-varieties" id="mlab-varieties">
+                <table class="sorting-tab-label-wrapper">
+                    <tr>
+                        <td class="sorting-tab-label">
+                            Varieties
+                        </td>
+                    </tr>
+                </table>
+                <div class="resize-region"></div>
+            </div><!--
+
+            ---><div class="sorting-tab mcol-description" id="mlab-description">
+                <table class="sorting-tab-label-wrapper">
+                    <tr>
+                        <td class="sorting-tab-label">
+                            Description
+                        </td>
+                    </tr>
+                </table>
+                <div class="resize-region"></div>
+            </div><!--
+
+            ---><div class="sorting-tab mcol-colours" id="mlab-colours">
+                <table class="sorting-tab-label-wrapper">
+                    <tr>
+                        <td class="sorting-tab-label">
+                            Colours
+                        </td>
+                    </tr>
+                </table>
+                <div class="resize-region"></div>
+            </div><!--
+
+            ---><div class="sorting-tab mcol-structure" id="mlab-structure">
+                <table class="sorting-tab-label-wrapper">
+                    <tr>
+                        <td class="sorting-tab-label">
+                            Crystal structure
+                        </td>
+                    </tr>
+                </table>
+                <div class="resize-region"></div>
+            </div><!--
+
+            ---><div class="sorting-tab mcol-composition" id="mlab-composition">
+                <table class="sorting-tab-label-wrapper">
+                    <tr>
+                        <td class="sorting-tab-label">
+                            Chemical formula
+                        </td>
+                    </tr>
+                </table>
+                <div class="resize-region"></div>
+            </div><!--
+
+            ---><div class="sorting-tab mcol-images" id="mlab-images">
+                <table class="sorting-tab-label-wrapper">
+                    <tr>
+                        <td class="sorting-tab-label">
+                            Image count
+                        </td>
+                    </tr>
+                </table>
+                <div class="resize-region"></div>
+            </div><!--
+
+            ---><div class="sorting-tab mcol-category" id="mlab-category">
+                <table class="sorting-tab-label-wrapper">
+                    <tr>
+                        <td class="sorting-tab-label">
+                            Category (Nickel-Strunz)
+                        </td>
+                    </tr>
+                </table>
+                <div class="resize-region"></div>
+            </div><!--
+
+            ---><div class="sorting-tab mcol-pagenumber" id="mlab-pagenumber">
+                <table class="sorting-tab-label-wrapper">
+                    <tr>
+                        <td class="sorting-tab-label">
+                            Page number
+                        </td>
+                    </tr>
+                </table>
+                <div class="resize-region"></div>
+            </div>
+
+
+        </div>
+
+        <div class="result-line-container" id="mineral-result-line-container">
+
+        </div>
+    </div>
+
+    <!--
+    |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+    -->
+
+    <div class="main-panel item-panel" id="view-collection-item-panel">
+        <div class="image-box-wrapper">
+            <div class="image-box-left-panel image-box-panel">
+                <span class="align-helper"></span><!---
+            ---><img id="collection-image-arrow-left" src="resource/arrow_left_null.png" onclick="ui.decrement_image('collection')" />
+            </div><!---
+            ---><div class="image-box">
+                <div class="image-view" id="collection-image">
+                </div>
+                <div class="image-count" id="collection-image-count"></div>
+            </div><!---
+            ---><div class="image-box-right-panel image-box-panel">
+                <span class="align-helper"></span><!---
+            ---><img id="collection-image-arrow-right" src="resource/arrow_right_null.png" onclick="ui.advance_image('collection')" />
+            </div>
+        </div>
+        <div class="item-info-container">
+            <div class="item-info-heading">
+                <span class="item-info-big" id="collection-item-name"></span><br /><div class="pspace"></div>
+                <span class="item-info-medium" id="collection-item-type"></span>
+            </div>
+            <div class="horizontal-divider"></div>
+            <span id="collection-item-description"></span><br /><div class="pspace"></div>
+            <span id="collection-item-notes"></span>
+            <div class="horizontal-divider"></div>
+            <span id="collection-item-purchase"></span>
+            <div class="horizontal-divider"></div>
+            <span class="info-label" id="view-coll-colours-label">Colours: </span><span id="collection-item-colours"></span><br /><div class="pspace"></div>
+            <span id="collection-item-location"></span><br /><div class="pspace"></div>
+            <span id="collection-item-texture"></span>
+        </div>
+        <div class="action-buttons">
+            <button class="delete-button item-panel-button red-button" onclick="ui.confirm_delete_item('collection')">Delete</button>
+            <button class="item-panel-button green-button" onclick="ui.edit_collection_item()">Edit</button>
+        </div>
+    </div>
+
+    <div class="main-panel item-panel" id="view-mineral-item-panel">
+        <div class="image-box-wrapper">
+            <div class="image-box-left-panel image-box-panel">
+                <span class="align-helper"></span><!---
+            ---><img id="mineral-image-arrow-left" src="resource/arrow_left_null.png" onclick="ui.decrement_image('mineral')" />
+            </div><!---
+            ---><div class="image-box">
+                <div class="image-view" id="mineral-image">
+                </div>
+                <div class="image-count" id="mineral-image-count"></div>
+            </div><!---
+            ---><div class="image-box-right-panel image-box-panel">
+                <span class="align-helper"></span><!---
+            ---><img id="mineral-image-arrow-right" src="resource/arrow_right_null.png" onclick="ui.advance_image('mineral')" />
+            </div>
+        </div>
+        <div class="item-info-container">
+            <div class="item-info-heading">
+                <span class="item-info-big" id="mineral-item-name"></span><br /><div class="pspace"></div>
+                <span class="item-info-medium" id="mineral-item-strucformula"></span>
+            </div>
+            <div class="horizontal-divider"></div>
+            <span id="mineral-item-description"></span>
+            <div class="horizontal-divider"></div>
+            <span class="info-label" id="view-min-varieties-label">Varieties: </span><span id="mineral-item-varieties"></span>
+            <div class="horizontal-divider"></div>
+            <span class="info-label" id="view-min-category-label">Nickel Strunz category: </span><span id="mineral-item-nickelstrunz"></span><br /><div class="pspace"></div>
+            <span class="info-label tooltip" id="view-min-pagenum-label">Page number:&nbsp;
+                <span id="item-view-tooltip" class="tooltiptext">
+                    Page number of this mineral in <i>The</i> <i>Complete</i> <i>Encyclopedia</i> <i>of</i> <i>Minerals</i>, Petr Korbel and Milan Nov&aacute;k (1999, Rebo)</span>
+            </span><span id="mineral-item-pagenum"></span>
+            <div class="horizontal-divider"></div>
+            <span class="info-label" id="view-min-colours-label">Colours: </span><span id="mineral-item-colours"></span>
+        </div>
+        <div class="action-buttons">
+            <button class="delete-button item-panel-button red-button" onclick="ui.confirm_delete_item('mineral')">Delete</button>
+            <button class="item-panel-button green-button" onclick="ui.edit_mineral_item()">Edit</button>
+        </div>
+    </div>
+
+    <div class="main-panel item-panel" id="edit-collection-item-panel">
+        <div class="item-edit-container">
+            <div class="edit-line">
+                <div class="edit-floater">
+                    Purchase number:
+                </div>
+                <div id="c-edit-number" class="edit-input edit-medium-input"></div>
+            </div>
+            <div class="annoying-hacky-edit-spacer"></div>
+            <div class="edit-line">
+                <div class="edit-floater">
+                    Order in purchase:
+                </div>
+                <div id="c-edit-order" class="edit-input edit-small-input"></div>
+            </div>
+            <div class="annoying-hacky-edit-spacer"></div>
+            <div class="edit-line">
+                <div class="edit-floater">
+                    Name:
+                </div>
+                <div id="c-edit-name" class="edit-input edit-wide-input"></div>
+            </div>
+            <div class="annoying-hacky-edit-spacer"></div>
+            <div class="edit-line">
+                <div class="edit-floater">
+                    Mineral type:
+                </div>
+                <div id="c-edit-type" class="edit-input edit-wide-input"></div>
+            </div>
+            <div class="annoying-hacky-edit-spacer"></div>
+            <div class="edit-line">
+                <div class="edit-floater">
+                    Description:
+                </div>
+                <div class="edit-input edit-invisible"></div>
+                <div id="c-edit-description" class="edit-input edit-large-input"></div>
+            </div>
+            <div class="annoying-hacky-edit-spacer"></div>
+            <div class="edit-line">
+                <div class="edit-floater">
+                    Notes:
+                </div>
+                <div class="edit-input edit-invisible"></div>
+                <div id="c-edit-notes" class="edit-input edit-large-input"></div>
+            </div>
+            <div class="annoying-hacky-edit-spacer"></div>
+            <div class="edit-line">
+                <div class="edit-floater">
+                    Purchase date (dd-mm-yyyy):
+                </div>
+                <div class="invisible-edit-container">
+                    <div id="c-edit-date-day" class="edit-input edit-small-input"></div>
+                    <div id="c-edit-date-month" class="edit-input edit-small-input"></div>
+                    <div id="c-edit-date-year" class="edit-input edit-medium-input"></div>
+                </div>
+            </div>
+            <div class="annoying-hacky-edit-spacer"></div>
+            <div class="edit-line">
+                <div class="edit-floater">
+                    Purchase location:
+                </div>
+                <div id="c-edit-purchaseplace" class="edit-input edit-wide-input"></div>
+            </div>
+            <div class="annoying-hacky-edit-spacer"></div>
+            <div class="edit-line">
+                <div class="edit-floater">
+                    Cost (pence):
+                </div>
+                <div id="c-edit-cost" class="edit-input edit-medium-input"></div>
+            </div>
+            <div class="annoying-hacky-edit-spacer"></div>
+            <div class="edit-line">
+                <div class="edit-floater">
+                    Buyer:
+                </div>
+                <div id="c-edit-buyer" class="edit-input edit-wide-input"></div>
+            </div>
+            <div class="annoying-hacky-edit-spacer"></div>
+            <div class="edit-line">
+                <div class="edit-floater">
+                    Colours:
+                </div>
+                <div id="c-edit-colours" class="edit-input edit-wide-input"></div>
+            </div>
+            <div class="annoying-hacky-edit-spacer"></div>
+            <div class="edit-line">
+                <div class="edit-floater">
+                    Place of repose:
+                </div>
+                <div id="c-edit-location" class="edit-input edit-wide-input"></div>
+            </div>
+            <div class="annoying-hacky-edit-spacer"></div>
+            <div class="edit-line">
+                <div class="edit-floater">
+                    Texture:
+                </div>
+                <div class="invisible-edit-container">
+                    <table style="width:100%;align-items:center;">
+                        <tr>
+                            <td style="text-align:center; vertical-align:middle;">
+                                Tumbled <input type="radio" name="c-edit-texture" value="1"/>
+                            </td>
+                            <td>
+                                Rough <input type="radio" name="c-edit-texture" value="0" />
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            <div class="annoying-hacky-edit-spacer"></div>
+            <div class="edit-line">
+                <div class="edit-floater">
+                    <table><tr>
+                        <td>
+                            Images:
+                        </td>
+                        <td style="vertical-align: middle;">
+                            <img src="resource/plus.png" class="add-image-plus" onclick="ui.choose_images('c')"></img>
+                        </td>
+                    </tr></table>
+                </div>
+                <div class="edit-input edit-invisible"></div>
+                <div id="c-edit-images" style="display:none;"></div>
+                <div id="c-edit-images-visible"></div>
+            </div>
+        </div>
+
+        <div class="action-buttons">
+            <button class="delete-button item-panel-button red-button" onclick="ui.cancel_item_edit()">Cancel</button>
+            <button class="item-panel-button green-button" onclick="ui.save_collection_item()">Save</button>
+        </div>
+    </div>
+
+    <div class="main-panel item-panel" id="edit-mineral-item-panel">
+        <div class="item-edit-container">
+            <div class="edit-line">
+                <div class="edit-floater">
+                    Name:
+                </div>
+                <div id="m-edit-name" class="edit-input edit-wide-input"></div>
+            </div>
+            <div class="annoying-hacky-edit-spacer"></div>
+            <div class="edit-line">
+                <div class="edit-floater">
+                    Varieties:
+                </div>
+                <div id="m-edit-varieties" class="edit-input edit-wide-input"></div>
+            </div>
+            <div class="annoying-hacky-edit-spacer"></div>
+            <div class="edit-line">
+                <div class="edit-floater">
+                    Crystal structure:
+                </div>
+                <div id="m-edit-structure" class="edit-input edit-wide-input"></div>
+            </div>
+            <div class="annoying-hacky-edit-spacer"></div>
+            <div class="edit-line">
+                <div class="edit-floater">
+                    Chemical composition:
+                </div>
+                <div id="m-edit-composition" class="edit-input edit-wide-input"></div>
+            </div>
+            <div class="annoying-hacky-edit-spacer"></div>
+            <div class="edit-line">
+                <div class="edit-floater">
+                    Description:
+                </div>
+                <div class="edit-input edit-invisible"></div>
+                <div id="m-edit-description" class="edit-input edit-large-input"></div>
+            </div>
+            <div class="annoying-hacky-edit-spacer"></div>
+            <div class="edit-line">
+                <div class="edit-floater">
+                    Nickel-Strunz category:
+                </div>
+                <div id="m-edit-category" class="edit-input edit-wide-input"></div>
+            </div>
+            <div class="annoying-hacky-edit-spacer"></div>
+            <div class="edit-line">
+                <div class="edit-floater">
+                    Reference page number:
+                </div>
+                <div id="m-edit-pagenumber" class="edit-input edit-medium-input"></div>
+            </div>
+            <div class="annoying-hacky-edit-spacer"></div>
+            <div class="edit-line">
+                <div class="edit-floater">
+                    Colours:
+                </div>
+                <div id="m-edit-colours" class="edit-input edit-wide-input"></div>
+            </div>
+            <div class="annoying-hacky-edit-spacer"></div>
+            <div class="edit-line">
+                <div class="edit-floater">
+                    <table><tr>
+                        <td>
+                            Images:
+                        </td>
+                        <td style="vertical-align: middle;">
+                            <img src="resource/plus.png" class="add-image-plus" onclick="ui.choose_images('m')"></img>
+                        </td>
+                    </tr></table>
+                </div>
+                <div class="edit-input edit-invisible"></div>
+                <div id="m-edit-images" style="display:none;"></div>
+                <div id="m-edit-images-visible"></div>
+            </div>
+        </div>
+
+        <div class="action-buttons">
+            <button class="delete-button item-panel-button red-button" onclick="ui.cancel_item_edit()">Cancel</button>
+            <button class="item-panel-button green-button" onclick="ui.save_mineral_item()">Save</button>
+        </div>
+    </div>
+
+    <div id="global-status-bar">
+        <div id="status-wrapper"></div>
+        <div id="mass-addition-button" onclick="ui.add_from_file()" >
+            Add from CSV
+        </div>
+    </div>
+    <script>
+    </script>
+</body>
+</html>
