@@ -1,0 +1,119 @@
+.image-box-wrapper{
+    width:96.774%; /* 30vw */
+    height:39.175%; /* 38vh */
+    position: absolute;
+    top:3.093%; /* 3vh */
+    left: 1.613%; /* 0.5vw */
+    display: block;
+    margin-bottom: 2.0619%; /* 2vh */
+}
+.image-box{
+    width:90%; /* 27vw */
+    display: inline-block;
+    border: 1px solid #888888;
+    height: 100%;
+    vertical-align: top;
+    white-space: nowrap;
+    background-color: white;
+    overflow: hidden;
+    position: relative;
+    padding: 0px;
+}
+.image-view{
+    padding: 0px;
+    width: 100%;
+    height:100%;
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position: center;
+}
+.image-count{
+    position: absolute;
+    background-color: rgba(255, 255, 255, 0.95);
+    color: black;
+    right: 0px;
+    bottom: 0px;
+    padding-top: 2px;
+    padding-right: 4px;
+    padding-bottom: 0;
+    padding-left: 4px;
+    border-bottom: 0px solid #888888;
+    border-right: 0px solid #888888;
+    border-radius: 10px 0px 0px 0px;
+    background-clip: padding-box;
+}
+.image-box-panel{
+    width: 5%; /* 1.5vw */
+    height:100%;
+    display: inline-block;
+    vertical-align: top;
+    white-space: nowrap;
+}
+.image-box-panel img{
+    display: inline-block;
+    vertical-align: middle;
+    width:65%;
+    height:8%;
+    margin: 0 20%;
+}
+.align-helper{
+    display: inline-block;
+    height: 100%;
+    vertical-align: middle;
+}
+.item-info-container{
+    position: absolute;
+    display: block;
+    width: 96.774%; /* 30vw */
+    height: 50.722%; /* 49.2vh */
+    padding: 0px 4.839%; /* 0px 1.5vw */
+    left: 1.6129%; /* 0.5vw */
+    top: 44.33%; /* 43vh */
+    overflow-y: overlay;
+    overflow-x: hidden;
+    font-size: 20px;
+    font-family: serif;
+}
+.action-buttons{
+    position:absolute;
+    display: block;
+    width:96.774%; /* 30vw */
+    height: 7.01%; /* 6.8vh */
+    left: 1.6129%; /* 0.5vw */
+    bottom: 1.0309%; /* 1vh */
+    padding: 1.8145% 6.452%; /* 1vh 2vw */
+}
+.horizontal-divider{
+    margin: 3.049% 13%; /* 1.5vh 13% */
+    width: 74%;
+    height: 1px;
+    border: 0px;
+    background-color: #999999;
+}
+.item-panel-button{
+    width: 26.923%; /* 7vw */
+    height:100%;
+    margin: 0px 1.154%; /* 0.3vw */
+}
+.delete-button{
+    margin-left: 46.538%; /* 12.1vw */
+}
+.item-info-heading{
+    width: 100%; /* 27vw */
+    text-align: center;
+}
+.item-info-big{
+    font-size: 26px;
+}
+.item-info-medium{
+    font-size: 22px;
+}
+.pspace{
+    height: 0.5em;
+}
+.info-label{
+    color: #555555;
+    font-style: italic;
+    text-decoration: none;
+    border: 0px;
+}

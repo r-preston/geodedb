@@ -1,0 +1,88 @@
+#add-file-errors-backdrop,
+#add-file-good-backdrop{
+    z-index: 99999;
+    height: 100%;
+    width: 100%;
+    background-color: rgba(0,0,0,0.3);
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    white-space: nowrap;
+    display: none;
+}
+
+#add-file-errors-backdrop::before,
+#add-file-good-backdrop::before{
+    content: '';
+    display: inline-block;
+    height: 15%;
+    vertical-align: middle;
+    margin-right: -0.25em; /* Adjusts for spacing */
+}
+
+#add-file-errors-panel,
+#add-file-good-panel{
+    width: 70%;
+    height: 70%;
+    padding: 1%;
+    font-size: 22px;
+    background-color: white;
+    display: block;
+    vertical-align: middle;
+    margin: 0 auto;
+    position: relative;
+}
+
+.add-file-good-header{
+    height: 16%;
+}
+.add-file-error-header{
+    height: 6%;
+}
+
+#add-file-error-main{
+    height: 88%;
+    overflow-x: overlay;
+    overflow-y: overlay;
+}
+#add-file-error-main div{
+    display: block;
+    width: 100%;
+}
+#add-file-good-main{
+    height: 78%;
+    overflow: hidden;
+}
+
+.add-file-ok-button{
+    height: 6%;
+    width: 10%;
+    display: inline-block;
+    text-align: center;
+    margin: 0 7.5%;
+    margin-left: 90%;
+    border: 1px solid #aaaaaa;
+    white-space: nowrap;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.add-file-ok-button div{
+    display: inline-block;
+    vertical-align: middle;
+}
+.add-file-ok-button::before{
+    content: '';
+    display: inline-block;
+    height: 100%;
+    vertical-align: middle;
+    margin-right: -0.25em; /* Adjusts for spacing */
+}
+
+#file-add-radiotable{
+    margin-top: 3em;
+    width: 100%;
+}
+#file-add-radiotable tr td{
+    padding-bottom: 2em;
+}

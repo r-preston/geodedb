@@ -1,0 +1,74 @@
+.box-backdrop{
+    z-index: 99999;
+    height: 100%;
+    width: 100%;
+    background-color: rgba(0,0,0,0.3);
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    white-space: nowrap;
+    display: none;
+}
+.box-backdrop::before{
+    content: '';
+    display: inline-block;
+    height: 35%;
+    vertical-align: middle;
+    margin-right: -0.25em; /* Adjusts for spacing */
+}
+.input-box-button::before{
+    content: '';
+    display: inline-block;
+    height: 100%;
+    vertical-align: middle;
+    margin-right: -0.25em; /* Adjusts for spacing */
+}
+.input-popup{
+    display: block;
+    vertical-align: middle;
+    margin: 0 auto;
+    width: 20%;
+    height: 20%;
+    background-color: white;
+    padding: 1.5%;
+    position: relative;
+}
+#prompt-box-input{
+    line-height: 24px;
+    font-size: 24px;
+    min-height: 10%;
+    padding: 3px;
+    border: 1px solid #aaaaaa;
+    text-align: center;
+    width: 100%;
+    margin-bottom: 4%;
+    display: block;
+}
+.input-box-button{
+    display: inline-block;
+    width: 35%;
+    height: 20%;
+    text-align: center;
+    margin: 0 7.5%;
+    border: 1px solid #aaaaaa;
+    white-space: nowrap;
+    cursor: pointer;
+    border-radius: 5px;
+}
+.input-box-button div{
+    display: inline-block;
+    vertical-align: middle;
+}
+.input-box-text{
+    white-space: pre-wrap;
+    font-size: 18px;
+    display: block;
+    width: 100%;
+    margin-bottom: 4%;
+}
+#confirm-box-text{
+    height: 75%;
+}
+#prompt-box-text{
+    height: 45%;
+}

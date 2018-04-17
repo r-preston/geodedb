@@ -1,0 +1,97 @@
+.item-edit-container{
+    box-sizing: border-box;
+    height: 92.784%; /* 90vh */
+    overflow-x: overlay;
+    width: 100%;
+    padding-top: 3px;
+}
+.edit-line{
+    display: block;
+    /*margin-bottom: 1.667%; /* 1.5vh */
+    width: 100%;
+}
+.annoying-hacky-edit-spacer{
+    height: 1.667%;
+    width: 100%;
+}
+.edit-floater{
+    float: left;
+    padding-right: 2.581%; /* 0.8vw */
+    margin-top: 2px;
+}
+.edit-input{
+    background-color: white;
+    height:100%;
+    border: 1px solid #555555;
+    border-radius:2px;
+    padding: 2px;
+    overflow: hidden;
+}
+.edit-small-input{
+    min-height:18px; /* 2.8vh */
+    width:1.75em; /* 2.5vw */
+    text-align: right;
+}
+.edit-wide-input{
+    min-height:18px; /* 2.8vh */
+    white-space: normal;
+}
+.edit-large-input{
+    min-height:68px; /* 8.4vh */
+    white-space: normal;
+}
+.edit-medium-input{
+    min-height:18px; /* 2.8vh */
+    width:3.5em; /* 5vw */
+    text-align: right;
+}
+.invisible-edit-container{
+    overflow-x: visible;
+    overflow-y: hidden;
+}
+.invisible-edit-container div{
+    display: inline-block;
+}
+.edit-invisible{
+    visibility: hidden;
+}
+.add-image-plus{
+    display: table-cell;
+    opacity: 0.85;
+    height: 20px;
+    width: 20px;
+    margin-left: 4px;
+    cursor: pointer;
+    z-index: 99999999999;
+}
+.add-image-plus:hover{
+    opacity: 1;
+}
+#m-edit-images-visible, #c-edit-images-visible{
+    white-space: nowrap;
+    width: 100%;
+    padding-top: 3px;
+    border-bottom: 1px solid #aaaaaa
+}
+.image-path-container{
+    height: 32px;
+    padding: 2px;
+    display: block;
+    position: relative;
+    border: 1px solid #aaaaaa;
+    border-bottom: 0px;
+}
+.image-path{
+    display: inline;
+    position: relative;
+    margin-left: 24px;
+}
+.image-path-remover{
+    position: absolute;
+    padding-top: 4px;
+    padding-bottom: 4px;
+    height: 28px;
+    width: 20px;
+    display: inline;
+    cursor: pointer;
+}

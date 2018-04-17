@@ -1,0 +1,181 @@
+.result-topbar{
+    width: 45%; /* 45vw */
+    height: 5%; /* 5vh */
+    font-size: 18px;
+    border-bottom: 1px solid #aaaaaa;
+    box-shadow: 0px 2px 5px #cccccc;
+    overflow: hidden;
+    z-index: 999;
+    position: fixed;
+    background-color: #e4e4e4;
+    overflow: visible;
+    box-sizing: border-box;
+}
+.result-line-container{
+    position: fixed;
+    box-sizing: border-box;
+    top:5%; /* 5vh */
+    width:45%; /* 45vw */
+    left:24%; /* 24vw */
+    height:92%; /* 92vw */
+    overflow-y: overlay;
+    overflow-x: hidden;
+}
+.sorting-tab{
+    display: none;
+    height:100%;
+    box-sizing: border-box;
+    overflow: auto;
+    position: relative;
+    overflow: hidden;
+    margin: 0px;
+    padding: 0px;
+    border-right: 1px solid #888888;
+}
+.sorting-tab-label-wrapper, .result-cell-wrapper{
+    height: 100%;
+    padding: 5px;
+    width: 100%;
+    table-layout: fixed;
+    z-index: 999;
+}
+.sorting-tab-label, .result-cell-text{
+    height:100%;
+    vertical-align:middle;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: middle;
+}
+.sortable{
+    padding-right: 20px;
+}
+.result-cell-wrapper, .result-cell-text{
+    width:100%;
+    padding: 0px;
+    margin: 0px;
+    box-sizing: border-box;
+}
+.sorting-tab-arrow{
+    height:100%;
+    opacity: 0.8;
+    width:18px;
+    position:absolute;
+    top:0px;
+    right:5px;
+    display: inline-block;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    cursor: pointer;
+}
+.sorting-tab-arrow:before{
+    content: '';
+    display: inline-block;
+    height: 100%;
+    vertical-align: middle;
+    margin-right: -0.25em; /* Adjusts for spacing */
+}
+.sorting-tab-arrow img{
+    width:100%;
+    overflow: hidden;
+    display: inline-block;
+    vertical-align: middle;
+}
+.resize-region{
+    opacity: 0.5;
+    height:100%;
+    width:6px;
+    position: absolute;
+    top:0px;
+    right:0px;
+    cursor: e-resize;
+    overflow: hidden;
+}
+.result-line{
+    width:100%;
+    height: 4.348%; /* 4vh */
+    font-size: 0;
+    border-bottom:1px solid #aaaaaa;
+    border-top:0px;
+    cursor:pointer;
+    box-sizing: border-box;
+}
+.result-line:hover{
+    opacity:0.85;
+}
+.result-line div{
+    box-sizing: border-box;
+    font-size: 18px;
+    border:0px;
+    border-right: 1px solid #aaaaaa;
+    height:100%;
+    padding-left: 2px;
+    display: none;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.result-grey-background{
+    background-color: #f4f4f4;
+}
+.sorting-tab, .result-line div{
+    /* when new columns are shown, this will be the default width */
+    width:15%;
+}
+.rclick-context{
+    position: fixed;
+    display: none;
+    z-index: 9999;
+    background-color: white;
+    border: 1px solid #aaaaaa;
+    width:15%; /* 15vw */
+}
+.checkbox-list{
+    list-style-type: none;
+}
+.checkbox-list li{
+    height:2.75%; /* 2.75vh */
+    display: block;
+    position: relative;
+}
+.checkbox-list li:hover{
+    background-color: #f5f5f5;
+}
+.checkbox-list li:after{
+    width:85%;
+    height:1px;
+    position: absolute;
+    display: inline-block;
+    z-index: 999;
+    content:"";
+    bottom: 0px;
+    left:2%;
+    background-color: #eeeeee;
+}
+.checkbox-list li input{
+    position:relative;
+    display: inline-block;
+    text-align: right;
+    vertical-align: middle;
+    transform: scale(1.3);
+    width:15%;
+    opacity: 0.9;
+}
+.checkbox-list li label{
+    width:85%;
+    position:relative;
+    display:inline-block;
+    vertical-align: middle;
+    padding-left: 6px;
+}
+.checkbox-list li label, .checkbox-list li input{
+    cursor: pointer;
+    line-height: 140%; /* 2.75vh */
+}
+.show-checkbox{
+    display: block;
+}
+.show-column{
+    display: inline-block !important;
+}

@@ -1,1 +1,212 @@
-
+*{
+    margin:0px;
+    padding:0px;
+    box-sizing: border-box;
+    white-space: nowrap;
+    font-family: Georgia, serif;
+}
+#loading-splash{
+    width: 100%;
+    height:100%;
+    position: fixed;
+    display: table;
+    background-color: white;
+    font-size: 30px;
+    z-index: 99999999999999999999;
+}
+#loading-splash div{
+    display: table-cell;
+    vertical-align: middle;
+    text-align: center;
+}
+#global-status-bar{
+    height: 3%;
+    width: 100%;
+    bottom: 0px;
+    right: 0px;
+    padding-left: 0.5em;
+    background-color: white;
+    border-top: 1px solid #aaaaaa;
+    position: absolute;
+    font-size: 18px;
+    z-index: 99;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+}
+#global-status-bar:before{
+    content: '';
+    display: inline-block;
+    height: 100%;
+    vertical-align: middle;
+    margin-right: -0.25em; /* Adjusts for spacing */
+}
+#status-wrapper{
+    display: inline-block;
+    vertical-align: middle;
+    text-align: left;
+    width: 92%;
+}
+#mass-addition-button{
+    display: inline-block;
+    vertical-align: bottom;
+    padding-top: 0.2%;
+    text-align: middle;
+    text-decoration: underline;
+    cursor: pointer;
+    border-left: 1px solid #aaaaaa;
+    width: 8%;
+    height: 100%;
+}
+.include-object{
+    width:100%;
+    height:100%;
+}
+span{
+    white-space: normal;
+}
+.main-panel{
+    position:absolute;
+    height:97%;
+}
+.search-panel{
+    width:24%;
+    box-shadow: 2px 0px 5px #cccccc;
+    border-right:1px solid #aaaaaa;
+    z-index: 2;
+}
+.results-panel{
+    position: absolute;
+    width: 45%;
+    left: 24%;
+}
+.item-panel{
+    background-color:#eeeeee;
+    z-index: 999;
+    width:31%;
+    left:69%;
+    box-shadow: -2px 0px 5px #cccccc;
+    border-left:1px solid #aaaaaa;
+    padding: 1em;
+    font-size: 20px;
+}
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button{
+    -webkit-appearance: none;
+    margin: 0;
+}
+input[type="radio"]{
+    margin-top:-1px;
+    vertical-align:middle;
+}
+.tooltip{
+    cursor:pointer;
+    text-decoration: none;
+    border-bottom: 1px dotted black;
+    position: relative;
+}
+.tooltip:hover{
+    color: #555555;
+}
+.tooltip .tooltiptext{
+    visibility: hidden;
+    position: absolute;
+    z-index: 1;
+    background-color: white;
+    border-radius: 5px;
+    padding:5px;
+    text-align: center;
+    width:120px;
+    color:#000000;
+    top:-5px;
+    right: 60px;
+    margin-left: 12px;
+    opacity: 0;
+    font-size: 16px;
+    transition: opacity 0.3s;
+    transition-delay: 0.2s;
+    border: 1px solid #666666;
+}
+.tooltip:hover .tooltiptext{
+    visibility: visible;
+    opacity: 1;
+}
+#item-view-tooltip{
+    left: -20px;
+    top: 30px;
+    width: 200px;
+    background-color: #eeeeee;
+}
+.help-panel{
+    position: absolute;
+    visibility: hidden;
+    opacity: 0;
+    width: 70%;
+    top: 15%;
+    left: 15%;
+    background-color: #fafafa;
+    border: 0px;
+    border-radius: 5px;
+    z-index: -3;
+    transition: all 0.5s;
+    height:0px;
+    line-height: 0px;
+    white-space: normal;
+    overflow-x: hidden;
+    overflow-y: overlay;
+    padding: 20px 30px;
+    word-wrap: break-word;
+    font-size: 20px;
+}
+.help-panel h2, .help-panel h3, .help-panel h4, .help-panel h4{
+    margin-bottom: 1em;
+    margin-top: 1em;
+}
+.show-help-panel{
+    visibility: visible;
+    z-index: 99999;
+    opacity: 1;
+    height: 70%;
+    line-height: normal;
+    border:1px solid #888888;
+}
+button{
+    outline:none;
+    font-size: 20px;
+    font-family: serif;
+    cursor:pointer;
+    border-style: solid;
+    border-width: 1px;
+    border-radius: 10px;
+    border-color: #888888;
+}
+button:active{
+    border-style: inset;
+}
+.green-button{
+    background-color: #c8d7a7;
+}
+.green-button:hover{
+    background-color: #d3dfb9;
+}
+.green-button:active{
+    background-color: #e9efdc;
+}
+.darkgreen-button{
+    background-color: #a7c072;
+}
+.darkgreen-button:hover{
+    background-color: #acc577;
+}
+.darkgreen-button:active{
+    background-color: #d3dfb9;
+}
+.red-button{
+    background-color: #ffb2b2;
+}
+.red-button:hover{
+    background-color: #ffc0c0;
+}
+.red-button:active{
+    background-color: #ffd0d0;
+}
