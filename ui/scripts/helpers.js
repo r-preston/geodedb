@@ -4,6 +4,15 @@ function namepart(filepath)
     return filepath.slice(n + 1);
 }
 
+function replace_newlines(input)
+{
+    output = "<div>";
+    output += input;
+    output = output.replace(/\n/g, "</div><div>");
+    output += "</div>";
+    return output;
+}
+
 function list_comp(lst_one, lst_two)
 {
     if(lst_one.length !== lst_two.length) { return false; }
@@ -78,14 +87,20 @@ function subscript_numbers(raw)
     var output = "";
     var insertafter = false;
     var digits = "0123456789";
-    for(var i = 0; i < raw.length; i++)
+    var precedents = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ)";
+
+    if(raw.length > 0)
+    {
+        output += raw[0];
+    }
+    for(var i = 1; i < raw.length; i++)
     {
         if((digits.indexOf(raw[i]) === -1) && (insertafter)) // if n is a letter and a <sub> needs closing
         {
             output += "</sub>";
             insertafter = false;
         }
-        if((digits.indexOf(raw[i]) !== -1) && (!insertafter)) // if n is the first digit of a number
+        if((digits.indexOf(raw[i]) !== -1) && (precedents.indexOf(raw[i - 1]) !== -1) && (!insertafter)) // if n is the first digit of a number
         {
             output += "<sub>";
             insertafter = true;

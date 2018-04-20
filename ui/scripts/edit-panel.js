@@ -422,7 +422,7 @@ function fill_collection_data(centry)
                 tmp = centry[boxes[i]];
                 tmp = tmp.replace(/\n/g, "</div><div>") + '</div>';
                 tmp.replace("</div>", '');
-                document.getElementById("c-edit-"+boxes[i]).innerText = tmp;
+                document.getElementById("c-edit-"+boxes[i]).innerHTML = tmp;
             }
         }
         else if(centry[boxes[i]] !== -1)

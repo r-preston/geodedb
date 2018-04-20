@@ -97,7 +97,7 @@ function display_mineral_item()
 
     displaybox = document.getElementById("mineral-item-description");
     displaybox.innerHTML = '';
-    displaybox.innerHTML = m_item.description;
+    displaybox.innerHTML = replace_newlines(m_item.description);
 
     displaybox = document.getElementById("mineral-item-varieties");
     displaybox.innerHTML = '';
@@ -193,12 +193,12 @@ function display_collection_item()
     // description
     displaybox = document.getElementById("collection-item-description");
     displaybox.innerHTML = '';
-    displaybox.innerHTML = c_item.description;
+    displaybox.innerHTML = replace_newlines(c_item.description);
 
     // notes
     displaybox = document.getElementById("collection-item-notes");
     displaybox.innerHTML = '';
-    displaybox.innerHTML = c_item.notes;
+    displaybox.innerHTML = replace_newlines(c_item.notes);
 
     // display purchase info (place of purchase, date, buyer, cost)
     displaybox = document.getElementById("collection-item-purchase");
