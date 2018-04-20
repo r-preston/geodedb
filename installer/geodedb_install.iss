@@ -90,7 +90,8 @@ Source: "{#source_path}Collection.xlsx"; DestDir: "{app}"; Flags: ignoreversion;
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
-Name: "{commonprograms}\GeodeDB"; Filename: "{app}\geodedb.exe"
+Name: "{commonprograms}\GeodeDB"; Filename: "{app}\geodedb.exe"   
+Name: "{userprograms}\GeodeDB"; Filename: "{app}\geodedb.exe"
 Name: "{commondesktop}\GeodeDB"; Filename: "{app}\geodedb.exe"; Tasks: desktopicon
 
 [Run]
