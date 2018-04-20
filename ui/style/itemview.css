@@ -117,3 +117,6 @@
     text-decoration: none;
     border: 0px;
 }
+#mineral-item-description div, #collection-item-description div, #collection-item-notes div{
+    display: block;
+}
