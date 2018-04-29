@@ -1,6 +1,7 @@
 #include <iostream>
 #include <windows.h>
 #include <shlobj.h>
+#include <Shobjidl.h>
 
 #include "headers/program.h"
 #include "headers/stonebase.h"
@@ -40,7 +41,74 @@ void ProgramInstance::remove_collection_image(WebView* web_view, const JSArray& 
 
 void ProgramInstance::choose_images(WebView* web_view, const JSArray& args)
 {
-    char filename[1024];
+    HRESULT hr = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
+    if (SUCCEEDED(hr))
+    {
+        IFileOpenDialog *pFileOpen = NULL;
+
+        // Create the FileOpenDialog object.
+        hr = CoCreateInstance(CLSID_FileOpenDialog, NULL, CLSCTX_ALL, IID_IFileOpenDialog, reinterpret_cast<void**>(&pFileOpen));
+
+        COMDLG_FILTERSPEC rgSpec[] =
+        { 
+            { L"Image files", L"*.jpg;*.jpeg;*.png;*.tif;*.tiff;*.bmp;*.gif" },
+            { L"All files", L"*.*" }
+        };
+        pFileOpen->SetFileTypes(2, rgSpec);
+        pFileOpen->SetFileTypeIndex(1);
+        pFileOpen->SetTitle(L"Choose images");
+        pFileOpen->SetOptions(FOS_STRICTFILETYPES | FOS_NOCHANGEDIR | FOS_ALLOWMULTISELECT | FOS_FILEMUSTEXIST | FOS_DONTADDTORECENT);
+
+        if (SUCCEEDED(hr))
+        {
+            // Show the Open dialog box.
+            hr = pFileOpen->Show(NULL);
+
+            // Get the file name from the dialog box.
+            if (SUCCEEDED(hr))
+            {
+                //IShellItem *pItem;
+                //hr = pFileOpen->GetResult(&pItem);
+
+                IShellItemArray *psiaResult;
+
+                hr = pFileOpen->GetResults(&psiaResult);
+                if (SUCCEEDED(hr))
+                {
+                    DWORD itemCount;
+                    psiaResult->GetCount(&itemCount);
+
+                    for (int i = 0; i < (int)itemCount; i++)
+                    {
+                        IShellItem *pItem;
+                        PWSTR pszFilePath;
+                        psiaResult->GetItemAt(i, &pItem);
+
+                        hr = pItem->GetDisplayName(SIGDN_FILESYSPATH, &pszFilePath);
+
+                        JSArray ja;
+                        std::wstring filepath = (LPWSTR)pszFilePath;
+                        sanitise_path(filepath);
+                        ja.Push(WideWebString(filepath));
+
+                        if (args[0].ToString() == WSLit("c"))
+                        {
+                            window.Invoke(WSLit("add_collection_image_path"), ja);
+                        }
+                        else
+                        {
+                            window.Invoke(WSLit("add_mineral_image_path"), ja);
+                        }
+                    }
+                    psiaResult->Release();
+                }
+            }
+            pFileOpen->Release();
+        }
+        CoUninitialize();
+    }
+
+    /*char filename[1024];
 
     OPENFILENAME ofn;
     ZeroMemory( &filename, sizeof( filename ) );
@@ -52,7 +120,7 @@ void ProgramInstance::choose_images(WebView* web_view, const JSArray& args)
     ofn.lpstrFile[0] = '\0';
     ofn.nMaxFile     = MAX_PATH;
     ofn.lpstrTitle   = "Select images";
-    ofn.Flags        = OFN_DONTADDTORECENT | OFN_FILEMUSTEXIST | OFN_ALLOWMULTISELECT | OFN_EXPLORER;
+    ofn.Flags        = OFN_DONTADDTORECENT | OFN_FILEMUSTEXIST | OFN_ALLOWMULTISELECT | OFN_EXPLORER | OFN_NO­CHANGE­DIR;
 
     if (GetOpenFileNameA( &ofn )) // if the user selects a file
     {
@@ -69,27 +137,12 @@ void ProgramInstance::choose_images(WebView* web_view, const JSArray& args)
 
         for (unsigned int i = 1; i < splitstr.size(); i++)
         {
-            splitstr[i] =splitstr[0] + "/" + splitstr[i];
+            splitstr[i] = splitstr[0] + "/" + splitstr[i];
         }
 
         if(splitstr.size() > 1)
             splitstr.erase(splitstr.begin());
-
-        for (std::string path : splitstr)
-        {
-            JSArray ja;
-            ja.Push(ToWebString(path));
-            if (args[0].ToString() == WSLit("c"))
-            {
-                window.Invoke(WSLit("add_collection_image_path"), ja);
-            }
-            else
-            {
-                window.Invoke(WSLit("add_mineral_image_path"), ja);
-            }
-        }
-
-    }
+    }*/
 }
 
 void ProgramInstance::add_from_file(WebView* web_view, const JSArray& args)
@@ -105,51 +158,76 @@ void ProgramInstance::add_from_file(WebView* web_view, const JSArray& args)
 
     if (duplicate_method == 0)
     {
-        char filename[MAX_PATH];
-        std::string file;
-
-        OPENFILENAME ofn;
-        ZeroMemory( &filename, sizeof( filename ) );
-        ZeroMemory( &ofn,      sizeof( ofn ) );
-        ofn.lStructSize  = sizeof( ofn );
-        ofn.hwndOwner    = web_view->parent_window();  // If you have a window to center over, put its HANDLE here
-        ofn.lpstrFilter  = "CSV Files\0*.csv\0Any File\0*.*\0";
-        ofn.lpstrFile    = filename;
-        ofn.lpstrFile[0] = '\0';
-        ofn.nMaxFile     = MAX_PATH;
-        ofn.lpstrTitle   = "Select a file";
-        ofn.Flags        = OFN_DONTADDTORECENT | OFN_FILEMUSTEXIST;// | OFN_ALLOWMULTISELECT | OFN_EXPLORER;
-
-        if (GetOpenFileNameA( &ofn )) // if the user selects a file
+        HRESULT hr = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
+        if (SUCCEEDED(hr))
         {
-            file = std::string(filename);
+            IFileOpenDialog *pFileOpen = NULL;
 
-            std::vector<std::string> mistakes;
+            // Create the FileOpenDialog object.
+            hr = CoCreateInstance(CLSID_FileOpenDialog, NULL, CLSCTX_ALL, IID_IFileOpenDialog, reinterpret_cast<void**>(&pFileOpen));
 
-            mistakes = parse_input_file(file, config->table); // check the file given for mistakes
+            COMDLG_FILTERSPEC rgSpec[] =
+            { 
+                { L"CSV files", L"*.csv" },
+                { L"All files", L"*.*" }
+            };
+            pFileOpen->SetFileTypes(2, rgSpec);
+            pFileOpen->SetFileTypeIndex(1);
+            pFileOpen->SetTitle(L"Choose CSV file");
+            pFileOpen->SetOptions(FOS_STRICTFILETYPES | FOS_NOCHANGEDIR | FOS_FILEMUSTEXIST | FOS_DONTADDTORECENT);
 
-            if(mistakes.size() == 0) // no mistakes made
+            if (SUCCEEDED(hr))
             {
-                std::ifstream src(file.c_str(), std::ios::binary);
-                std::ofstream dst( (config->config_path+"bulk_add_tmp"), std::ios::binary);
-                dst << src.rdbuf();
+                // Show the Open dialog box.
+                hr = pFileOpen->Show(NULL);
 
-                JSArray ja;
-                ja.Push(ToWebString(file));
-                window.Invoke(WSLit("show_continue_box"), ja);
-            }
-            else
-            {
-                // show error box
-                JSArray ja, ja_inner;
-                for (unsigned int i = 0; i < mistakes.size(); i++)
+                // Get the file name from the dialog box.
+                if (SUCCEEDED(hr))
                 {
-                    ja_inner.Push(ToWebString(mistakes[i]));
+                    IShellItem *pItem;
+                    hr = pFileOpen->GetResult(&pItem);
+
+                    if (SUCCEEDED(hr))
+                    {
+                        PWSTR pszFilePath;
+
+                        hr = pItem->GetDisplayName(SIGDN_FILESYSPATH, &pszFilePath);
+
+                        std::wstring file = std::wstring((LPWSTR)pszFilePath);
+
+                        std::vector<std::string> mistakes;
+
+                        mistakes = parse_input_file(file, config->table); // check the file given for mistakes
+
+                        if(mistakes.size() == 0) // no mistakes made
+                        {
+                            std::ifstream src(file.c_str(), std::ios::binary);
+                            std::ofstream dst( (config->config_path+"bulk_add_tmp"), std::ios::binary);
+                            dst << src.rdbuf();
+
+                            JSArray ja;
+                            ja.Push(WideWebString(file));
+                            window.Invoke(WSLit("show_continue_box"), ja);
+                        }
+                        else
+                        {
+                            // show error box
+                            JSArray ja, ja_inner;
+                            for (unsigned int i = 0; i < mistakes.size(); i++)
+                            {
+                                ja_inner.Push(ToWebString(mistakes[i]));
+                            }
+                            ja.Push(ja_inner);
+                            ja.Push(WideWebString(file));
+                            window.Invoke(WSLit("show_error_box"), ja);
+                        }
+
+                        pItem->Release();
+                    }
                 }
-                ja.Push(ja_inner);
-                ja.Push(ToWebString(file));
-                window.Invoke(WSLit("show_error_box"), ja);
+                pFileOpen->Release();
             }
+            CoUninitialize();
         }
     }
     else
@@ -174,30 +252,6 @@ void ProgramInstance::add_from_file(WebView* web_view, const JSArray& args)
         stat_args.Push(JSValue(ToWebString(s)));
         window.Invoke(WSLit("status"), stat_args);
     }
-    /*else
-    {
-        // All this stuff below is to tell you exactly how you messed up above. 
-        // Once you've got that fixed, you can often (not always!) reduce it to a 'user cancelled' assumption.
-        switch (CommDlgExtendedError())
-        {
-        case CDERR_DIALOGFAILURE   : std::cout << "CDERR_DIALOGFAILURE\n";   break;
-        case CDERR_FINDRESFAILURE  : std::cout << "CDERR_FINDRESFAILURE\n";  break;
-        case CDERR_INITIALIZATION  : std::cout << "CDERR_INITIALIZATION\n";  break;
-        case CDERR_LOADRESFAILURE  : std::cout << "CDERR_LOADRESFAILURE\n";  break;
-        case CDERR_LOADSTRFAILURE  : std::cout << "CDERR_LOADSTRFAILURE\n";  break;
-        case CDERR_LOCKRESFAILURE  : std::cout << "CDERR_LOCKRESFAILURE\n";  break;
-        case CDERR_MEMALLOCFAILURE : std::cout << "CDERR_MEMALLOCFAILURE\n"; break;
-        case CDERR_MEMLOCKFAILURE  : std::cout << "CDERR_MEMLOCKFAILURE\n";  break;
-        case CDERR_NOHINSTANCE     : std::cout << "CDERR_NOHINSTANCE\n";     break;
-        case CDERR_NOHOOK          : std::cout << "CDERR_NOHOOK\n";          break;
-        case CDERR_NOTEMPLATE      : std::cout << "CDERR_NOTEMPLATE\n";      break;
-        case CDERR_STRUCTSIZE      : std::cout << "CDERR_STRUCTSIZE\n";      break;
-        case FNERR_BUFFERTOOSMALL  : std::cout << "FNERR_BUFFERTOOSMALL\n";  break;
-        case FNERR_INVALIDFILENAME : std::cout << "FNERR_INVALIDFILENAME\n"; break;
-        case FNERR_SUBCLASSFAILURE : std::cout << "FNERR_SUBCLASSFAILURE\n"; break;
-        default                    : std::cout << "You cancelled.\n";
-        }
-    }*/
 }
 
 void ProgramInstance::close_addfile_popups(WebView* web_view, const JSArray& args)
@@ -364,7 +418,9 @@ JSValue ProgramInstance::add_mineral_items(WebView* web_view, const JSArray& arg
 JSValue ProgramInstance::add_collection_items(WebView* web_view, const JSArray& args)
 {
     //JSConvert jc;
+
     window.Invoke(WSLit("remove_collection_results"), args);
+
     std::vector<int> rowids = config->collection_results.results;
 
     for (unsigned int i = 0; i < rowids.size(); i++)
@@ -528,7 +584,16 @@ void ProgramInstance::continue_delete_table(WebView* web_view, const JSArray& ar
 {
     WebString previous_table = ToWebString(config->table);
     const char * result = drop_table(*config, ToString(args[0].ToString()));
-    if(result) { app_->ShowMessage(result); return; }
+    if(result)
+    {
+        std::cout << result << std::endl;
+        JSArray stat_args;
+        std::string s = "Table deletion failed with error message \""+std::string(result)+"\"";
+        stat_args.Push(JSValue(ToWebString(s)));
+        stat_args.Push(JSValue(true));
+        window.Invoke(WSLit("status"), stat_args);
+        return;
+    }
 
     SyncConfigObjects();
 
@@ -564,7 +629,7 @@ void ProgramInstance::get_table_name(WebView* web_view, const JSArray& args)
     }
 
     JSArray popup;
-    popup.Push(WSLit("Enter name of new table (non-alphabetic characters are automatically removed)"));
+    popup.Push(WSLit("Enter name of new table (non-ascii or unprintable characters are automatically removed)"));
     popup.Push(WSLit("check_table_prompt"));
     JSValue table_name = window.Invoke(WSLit("show_prompt_box"), popup);
 }
@@ -573,15 +638,35 @@ void ProgramInstance::create_new_table(WebView* web_view, const JSArray& args)
 {
     JSValue table_name = args[0];
     JSArray args_two;
-    args_two.Push(table_name);
+
     std::string table = ToString(table_name.ToString());
 
-    make_table(table);
+    while (table.find("<div>") != std::string::npos)
+    {
+        table.replace(table.find("<div>"), 5, "");
+    }
+    while (table.find("</div>") != std::string::npos)
+    {
+        table.replace(table.find("</div>"), 6, "");
+    }
+
+    const char * errmsg = make_table(table);
+    if (errmsg)
+    {
+        std::cout << errmsg << std::endl;
+        JSArray stat_args;
+        std::string s = "Table creation failed with error message \""+std::string(errmsg)+"\"";
+        stat_args.Push(JSValue(ToWebString(s)));
+        stat_args.Push(JSValue(true));
+        window.Invoke(WSLit("status"), stat_args);
+        return;
+    }
     config->collection_table_list.push_back(table);
     change_table(*config, table);
 
     SyncConfigObjects();
 
+    args_two.Push(ToWebString(table));
     window.Invoke(WSLit("create_new_table"), args_two);
 }
 
@@ -936,20 +1021,20 @@ void ProgramInstance::save_collection_item(WebView* web_view, const JSArray& arg
 
     collection_entry entry;
 
-    entry.purchase     = jc.to_int( data.GetProperty( WSLit("number") ) );
-    entry.cost         = jc.to_int( data.GetProperty( WSLit("cost") ) );
-    entry.texture      = jc.to_int( data.GetProperty( WSLit("texture") ) );
-    entry.order        = jc.to_string( data.GetProperty( WSLit("order") ) );
-    entry.name         = jc.to_string( data.GetProperty( WSLit("name") ) );
-    entry.description  = jc.to_string( data.GetProperty( WSLit("description") ) );
-    entry.date         = jc.to_string( data.GetProperty( WSLit("date") ) );
-    entry.buyer        = jc.to_string( data.GetProperty( WSLit("buyer") ) );
-    entry.notes        = jc.to_string( data.GetProperty( WSLit("notes") ) );
-    entry.buy_location = jc.to_string( data.GetProperty( WSLit("purchaseplace") ) );
-    entry.now_location = jc.to_string( data.GetProperty( WSLit("location") ) );
-    entry.mineral      = jc.to_vectorstring( data.GetProperty( WSLit("type") ) );
-    entry.images       = jc.to_vectorstring( data.GetProperty( WSLit("images") ) );
-    entry.colours      = jc.to_vectorstring( data.GetProperty( WSLit("colours") ) );
+    entry.purchase      = jc.to_int( data.GetProperty( WSLit("number") ) );
+    entry.cost          = jc.to_int( data.GetProperty( WSLit("cost") ) );
+    entry.texture       = jc.to_int( data.GetProperty( WSLit("texture") ) );
+    entry.order         = jc.to_string( data.GetProperty( WSLit("order") ) );
+    entry.name          = jc.to_string( data.GetProperty( WSLit("name") ) );
+    entry.description   = jc.to_string( data.GetProperty( WSLit("description") ) );
+    entry.date          = jc.to_string( data.GetProperty( WSLit("date") ) );
+    entry.buyer         = jc.to_string( data.GetProperty( WSLit("buyer") ) );
+    entry.notes         = jc.to_string( data.GetProperty( WSLit("notes") ) );
+    entry.buy_location  = jc.to_string( data.GetProperty( WSLit("purchaseplace") ) );
+    entry.now_location  = jc.to_string( data.GetProperty( WSLit("location") ) );
+    entry.mineral       = jc.to_vectorstring( data.GetProperty( WSLit("type") ) );
+    entry.colours       = jc.to_vectorstring( data.GetProperty( WSLit("colours") ) );
+    entry.source_images = jc.to_vectorwstring( data.GetProperty( WSLit("images") ) );
 
     size_t pos;
     for (unsigned int i = 0; i < entry.colours.size(); i++)
@@ -961,13 +1046,13 @@ void ProgramInstance::save_collection_item(WebView* web_view, const JSArray& arg
             pos = entry.colours[i].find('\n');
         }
     }
-    for (unsigned int i = 0; i < entry.images.size(); i++)
+    for (unsigned int i = 0; i < entry.source_images.size(); i++)
     {
-        size_t pos = entry.images[i].find('\n');
+        size_t pos = entry.source_images[i].find('\n');
         while (pos != std::string::npos)
         {
-            entry.images[i].erase(pos, 1);
-            pos = entry.images[i].find('\n');
+            entry.source_images[i].erase(pos, 1);
+            pos = entry.source_images[i].find('\n');
         }
     }
     for (unsigned int i = 0; i < entry.mineral.size(); i++)
@@ -1082,13 +1167,25 @@ void ProgramInstance::save_collection_item(WebView* web_view, const JSArray& arg
         {
             to_update.push_back("type");
         }
-        if (config->active_collection_item.images != entry.images)
-        {
-            to_update.push_back("images");
-        }
         if (config->active_collection_item.colours != entry.colours)
         {
             to_update.push_back("colours");
+        }
+
+        if (config->active_collection_item.images.size() != entry.source_images.size())
+        {
+            to_update.push_back("images");
+        }
+        else
+        {
+            for (unsigned int i = 0; i < entry.source_images.size(); i++)
+            {
+                if (config->active_collection_item.images[i] != wstr_trunc(entry.source_images[i]))
+                {
+                    to_update.push_back("images");
+                    break;
+                }
+            }
         }
 
         if (to_update.size())
@@ -1101,6 +1198,11 @@ void ProgramInstance::save_collection_item(WebView* web_view, const JSArray& arg
                 errmsg.Push(JSValue(false));
                 window.InvokeAsync( WSLit("status"), errmsg);
                 return;
+            }
+            if (!((unsigned int)config->collection_current_image < config->active_collection_item.images.size()))
+            {
+                config->collection_current_image = config->active_collection_item.images.size() == 0 ? -1 : 0;
+                SyncConfigObjects("config");
             }
             JSArray success;
             success.Push(WSLit("Item successfully updated"));
@@ -1129,18 +1231,17 @@ void ProgramInstance::save_mineral_item(WebView* web_view, const JSArray& args)
         data = jdata.ToObject();
     }
     else return;
-
     mineral_entry entry;
 
-    entry.pagenumber  = jc.to_int( data.GetProperty( WSLit("pagenumber") ) );
-    entry.category    = jc.to_string( data.GetProperty( WSLit("category") ) );
-    entry.name        = jc.to_string( data.GetProperty( WSLit("name") ) );
-    entry.description = jc.to_string( data.GetProperty( WSLit("description") ) );
-    entry.structure   = jc.to_string( data.GetProperty( WSLit("structure") ) );
-    entry.composition = jc.to_string( data.GetProperty( WSLit("composition") ) );
-    entry.varieties   = jc.to_vectorstring( data.GetProperty( WSLit("varieties") ) );
-    entry.images      = jc.to_vectorstring( data.GetProperty( WSLit("images") ) );
-    entry.colours     = jc.to_vectorstring( data.GetProperty( WSLit("colours") ) );
+    entry.pagenumber    = jc.to_int( data.GetProperty( WSLit("pagenumber") ) );
+    entry.category      = jc.to_string( data.GetProperty( WSLit("category") ) );
+    entry.name          = jc.to_string( data.GetProperty( WSLit("name") ) );
+    entry.description   = jc.to_string( data.GetProperty( WSLit("description") ) );
+    entry.structure     = jc.to_string( data.GetProperty( WSLit("structure") ) );
+    entry.composition   = jc.to_string( data.GetProperty( WSLit("composition") ) );
+    entry.varieties     = jc.to_vectorstring( data.GetProperty( WSLit("varieties") ) );
+    entry.colours       = jc.to_vectorstring( data.GetProperty( WSLit("colours") ) );
+    entry.source_images = jc.to_vectorwstring( data.GetProperty( WSLit("images") ) );
 
     size_t pos;
     for (unsigned int i = 0; i < entry.colours.size(); i++)
@@ -1152,13 +1253,13 @@ void ProgramInstance::save_mineral_item(WebView* web_view, const JSArray& args)
             pos = entry.colours[i].find('\n');
         }
     }
-    for (unsigned int i = 0; i < entry.images.size(); i++)
+    for (unsigned int i = 0; i < entry.source_images.size(); i++)
     {
-        size_t pos = entry.images[i].find('\n');
-        while (pos != std::string::npos)
+        size_t pos = entry.source_images[i].find('\n');
+        while (pos != std::wstring::npos)
         {
-            entry.images[i].erase(pos, 1);
-            pos = entry.images[i].find('\n');
+            entry.source_images[i].erase(pos, 1);
+            pos = entry.source_images[i].find('\n');
         }
     }
     for (unsigned int i = 0; i < entry.varieties.size(); i++)
@@ -1245,9 +1346,21 @@ void ProgramInstance::save_mineral_item(WebView* web_view, const JSArray& args)
         {
             to_update.push_back("colours");
         }
-        if (config->active_mineral_item.images != entry.images)
+
+        if (config->active_mineral_item.images.size() != entry.source_images.size())
         {
             to_update.push_back("images");
+        }
+        else
+        {
+            for (unsigned int i = 0; i < entry.source_images.size(); i++)
+            {
+                if (config->active_mineral_item.images[i] != wstr_trunc(entry.source_images[i]))
+                {
+                    to_update.push_back("images");
+                    break;
+                }
+            }
         }
 
         if(to_update.size())
@@ -1260,6 +1373,11 @@ void ProgramInstance::save_mineral_item(WebView* web_view, const JSArray& args)
                 errmsg.Push(JSValue(false));
                 window.InvokeAsync( WSLit("status"), errmsg);
                 return;
+            }
+            if (!((unsigned int)config->mineral_current_image < config->active_mineral_item.images.size()))
+            {
+                config->mineral_current_image = config->active_mineral_item.images.size() == 0 ? -1 : 0;
+                SyncConfigObjects("config");
             }
             JSArray success;
             success.Push(WSLit("Item successfully updated"));

@@ -49,6 +49,11 @@ std::string ProgramInstance::web_str(JSValue JSVal)
     return ToString(JSVal.ToString());
 }
 
+WebString WideWebString(std::wstring wstr)
+{
+    return WebString(reinterpret_cast<const wchar16*>(wstr.c_str()));
+}
+
 int * window_size(int dimensions[])
 {
     // gets the usable screen area and return 90% of it

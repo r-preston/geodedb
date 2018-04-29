@@ -3,6 +3,8 @@
 #include <string>
 #include <windows.h>
 
+#include <iostream>
+
 #include "headers/structures.h" // for the program_config data structure
 #include "headers/stonebase.h" // for database open/close functions
 #include "headers/parsing.h"  // for explode()
@@ -10,6 +12,8 @@
 #include "headers/dirent.h"
 
 program_config *pconfig;
+
+bool datecmp(std::string query, std::string model, int type = -1);
 
 BOOL CtrlHandler(DWORD fdwCtrlType)
 {

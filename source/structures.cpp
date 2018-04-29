@@ -369,7 +369,11 @@ program_config::program_config()
     collection_current_image = -1;
     mineral_current_image = -1;
 
-    if(!portable_condition())
+    if(portable_condition())
+    {
+        config_path = "";
+    }
+    else
     {
         wchar_t* path = 0;
         if (SHGetKnownFolderPath(FOLDERID_RoamingAppData, 0, NULL, &path) == S_OK)
@@ -385,10 +389,6 @@ program_config::program_config()
         CoTaskMemFree(static_cast<void*>(path));
         config_path += "/GeodeDB/";
         CreateDirectory(config_path.c_str(), NULL);
-    }
-    else
-    {
-        config_path = "";
     }
     CreateDirectory((config_path+"Images").c_str(), NULL);
     CreateDirectory((config_path+"Database").c_str(), NULL);

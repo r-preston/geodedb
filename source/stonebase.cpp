@@ -45,7 +45,7 @@ const char * sort_items(std::vector<int> &rowids, std::string table, bool ascend
     sqlite3_stmt *stmt; // sql query object
     std::string str_result; // stores result from sqlite3_column_text after being converted from const char *
 
-    std::string sql = "SELECT "+column+" FROM "+table+" WHERE ROWID=?1;"; // sql query
+    std::string sql = "SELECT "+column+" FROM \""+table+"\" WHERE ROWID=?1;"; // sql query
 
     for(int id:rowids) // for each rowid to be sorted
     {
@@ -72,6 +72,17 @@ const char * sort_items(std::vector<int> &rowids, std::string table, bool ascend
                     std::transform(str_result.begin(), str_result.end(), str_result.begin(), ::tolower);
                     str_values.push_back( str_result ); // add value to str_values
                 }
+                else if (sqlite3_column_type(stmt, 0) == SQLITE_NULL)
+                {
+                    if (sort_mask % 2 == 0)
+                    {
+                        str_values.push_back("");
+                    }
+                    else
+                    {
+                        int_values.push_back(-1);
+                    }
+                }
             }
             else if(rc != SQLITE_DONE) // error
             {
@@ -83,7 +94,6 @@ const char * sort_items(std::vector<int> &rowids, std::string table, bool ascend
         sqlite3_reset(stmt); // reset prepared statement
         sqlite3_clear_bindings(stmt); // clear bindings from sql statement
     }
-
 
     // before results are sorted, set unsorted vector to allow matching rowids later
     int_unsort = int_values;
@@ -112,7 +122,6 @@ const char * sort_items(std::vector<int> &rowids, std::string table, bool ascend
         else
             std::sort(str_values.begin(), str_values.end(), datecmp_grtr_only); // sort dates in ascending order
     }
-
 
     if(str_values.size()) // if string results have been processed
     {
@@ -207,7 +216,7 @@ const char * get_collection_columns(int rowid, std::vector<std::string> columns,
     }
     sql += columns[columns.size()-1]; // no comma for last value
 
-    sql += " FROM "+tablename+" WHERE ROWID=?1"; // set table to grab from and ROWID condition, leaving bind site to bind rowid to later
+    sql += " FROM \""+tablename+"\" WHERE ROWID=?1"; // set table to grab from and ROWID condition, leaving bind site to bind rowid to later
 
     sqlite3_prepare_v2(db, sql.c_str(), sql.size(), &stmt, NULL); // convert statement to byte code query
 
@@ -408,7 +417,7 @@ const char * search_date(std::vector<int> &results, const std::string tablename,
     bool isdate = false; // stores result of comparing tbldate to datestring
 
     // create sql query to extract dates and ROWIDs from tablename
-    sql = "SELECT ROWID, Date FROM "+tablename+";";
+    sql = "SELECT ROWID, Date FROM \""+tablename+"\";";
 
     // create sql query object
     sqlite3_prepare_v2(db, sql.c_str(), sql.size(), &stmt, NULL);
@@ -500,7 +509,7 @@ const char * search_collection(collection_entry args, std::string any, int argnu
     {
         if(args.date == "")
         {
-            sql = "SELECT ROWID FROM "+tabnam+";"; // sql query will return all rows
+            sql = "SELECT ROWID FROM \""+tabnam+"\";"; // sql query will return all rows
             sqlite3_prepare_v2(db, sql.c_str(), sql.size(), &stmt, NULL); // prepare statement
             while(rc != SQLITE_DONE) // while results left
             {
@@ -538,7 +547,7 @@ const char * search_collection(collection_entry args, std::string any, int argnu
     if(s_or) comp = " OR ";
     else comp = " AND ";
 
-    sql = "SELECT ROWID FROM "+tabnam+" WHERE ";
+    sql = "SELECT ROWID FROM \""+tabnam+"\" WHERE ";
 
     //{ creating the sql query - this is of the form SELECT ROWID FROM <TABLE> WHERE [condition LIKE/=/</> value]
     //{
@@ -555,7 +564,7 @@ const char * search_collection(collection_entry args, std::string any, int argnu
         else if(compares[0] == 1) sql += ">";
         else sql += "=";
         // in sqlite, ?n stands in for a value, which can later be bound to that site using sqlite_bind*()
-        sql += "?" + std::to_string(nth+1);
+        sql += "?" + std::to_string(nth+2);
         // we push an identifier to bindings so we know what order to bind values in later
         bindings.push_back("num");
         // increase number of queries processed by 1
@@ -570,70 +579,70 @@ const char * search_collection(collection_entry args, std::string any, int argnu
         if(compares[2] == -1) sql += "<";
         else if(compares[2] == 1) sql += ">";
         else sql += "=";
-        sql += "?" + std::to_string(nth+1);
+        sql += "?" + std::to_string(nth+2);
         bindings.push_back("cost");
         nth++;
         if(argnum > nth) sql += comp;
     }
     if(args.texture != -1)
     {
-        sql += "Texture=?"+std::to_string(nth+1); // texture only uses =
+        sql += "Texture=?"+std::to_string(nth+2); // texture only uses =
         bindings.push_back("texture");
         nth++;
         if(argnum > nth) sql += comp;
     }
     if(args.name != "")
     {
-        sql += "Name LIKE ?"+std::to_string(nth+1); // all string values use the sql keyword 'LIKE' to search for a pattern in the column
+        sql += "Name LIKE ?"+std::to_string(nth+2); // all string values use the sql keyword 'LIKE' to search for a pattern in the column
         bindings.push_back("name");
         nth++;
         if(argnum > nth) sql += comp;
     }
     if(args.description != "")
     {
-        sql += "Description LIKE ?"+std::to_string(nth+1);
+        sql += "Description LIKE ?"+std::to_string(nth+2);
         bindings.push_back("description");
         nth++;
         if(argnum > nth) sql += comp;
     }
     if(args.buyer != "")
     {
-        sql += "Buyer LIKE ?"+std::to_string(nth+1);
+        sql += "Buyer LIKE ?"+std::to_string(nth+2);
         bindings.push_back("buyer");
         nth++;
         if(argnum > nth) sql += comp;
     }
     if(args.notes != "")
     {
-        sql += "Notes LIKE ?"+std::to_string(nth+1);
+        sql += "Notes LIKE ?"+std::to_string(nth+2);
         bindings.push_back("notes");
         nth++;
         if(argnum > nth) sql += comp;
     }
     if(args.buy_location != "")
     {
-        sql += "PurchaseLocation LIKE ?"+std::to_string(nth+1);
+        sql += "PurchaseLocation LIKE ?"+std::to_string(nth+2);
         bindings.push_back("from");
         nth++;
         if(argnum > nth) sql += comp;
     }
     if(args.now_location != "")
     {
-        sql += "CurrentLocation LIKE ?"+std::to_string(nth+1);
+        sql += "CurrentLocation LIKE ?"+std::to_string(nth+2);
         bindings.push_back("location");
         nth++;
         if(argnum > nth) sql += comp;
     }
     for(unsigned int i = 0; i < args.mineral.size(); i++) // minerals can have multiple values, so iterate through list to add the MineralType condition multiple times
     {
-        sql += "MineralType LIKE ?"+std::to_string(nth+1);
+        sql += "MineralType LIKE ?"+std::to_string(nth+2);
         bindings.push_back("mineral");
         nth++;
         if(argnum > nth) sql += comp;
     }
     for(unsigned int i = 0; i < args.colours.size(); i++) // ditto as above
     {
-        sql += "Colours LIKE ?"+std::to_string(nth+1);
+        sql += "Colours LIKE ?"+std::to_string(nth+2);
         bindings.push_back("colour");
         nth++;
         if(argnum > nth) sql += comp;
@@ -652,7 +661,7 @@ const char * search_collection(collection_entry args, std::string any, int argnu
         for(auto n:fields)
         {
             // <column name> LIKE <value> OR ... and so on for each column name
-            sql += n+" LIKE ?"+std::to_string(nth+1);
+            sql += n+" LIKE ?"+std::to_string(nth+2);
             if(n != "CurrentLocation") sql += " OR ";
             bindings.push_back("any");
             nth++; // any contributes to nth because it uses binding points
@@ -670,34 +679,34 @@ const char * search_collection(collection_entry args, std::string any, int argnu
     {
         // for each identifier, bind the appropriate value
         if(bindings[i] == "num")
-            sqlite3_bind_int(stmt, i+1, args.purchase);
+            sqlite3_bind_int(stmt, i+2, args.purchase);
         else if(bindings[i] == "cost")
-            sqlite3_bind_int(stmt, i+1, args.cost);
+            sqlite3_bind_int(stmt, i+2, args.cost);
         else if(bindings[i] == "texture")
-            sqlite3_bind_int(stmt, i+1, args.texture);
+            sqlite3_bind_int(stmt, i+2, args.texture);
         else if(bindings[i] == "name")
-            sqlite3_bind_text(stmt, i+1, args.name.c_str(), args.name.size(), SQLITE_STATIC); // string values a converted to char* by c_str(), size must be given for char lists
+            sqlite3_bind_text(stmt, i+2, wildcards(args.name).c_str(), args.name.size() + 2, SQLITE_TRANSIENT); // string values are converted to char* by c_str(), size must be given for char lists
         else if(bindings[i] == "description")
-            sqlite3_bind_text(stmt, i+1, args.description.c_str(), args.description.size(), SQLITE_STATIC);
+            sqlite3_bind_text(stmt, i+2, wildcards(args.description).c_str(), args.description.size() + 2, SQLITE_TRANSIENT);
         else if(bindings[i] == "buyer")
-            sqlite3_bind_text(stmt, i+1, args.buyer.c_str(), args.buyer.size(), SQLITE_STATIC);
+            sqlite3_bind_text(stmt, i+2, wildcards(args.buyer).c_str(), args.buyer.size() + 2, SQLITE_TRANSIENT);
         else if(bindings[i] == "notes")
-            sqlite3_bind_text(stmt, i+1, args.notes.c_str(), args.notes.size(), SQLITE_STATIC);
+            sqlite3_bind_text(stmt, i+2, wildcards(args.notes).c_str(), args.notes.size() + 2, SQLITE_TRANSIENT);
         else if(bindings[i] == "from")
-            sqlite3_bind_text(stmt, i+1, args.buy_location.c_str(), args.buy_location.size(), SQLITE_STATIC);
+            sqlite3_bind_text(stmt, i+2, wildcards(args.buy_location).c_str(), args.buy_location.size() + 2, SQLITE_TRANSIENT);
         else if(bindings[i] == "location")
-            sqlite3_bind_text(stmt, i+1, args.now_location.c_str(), args.now_location.size(), SQLITE_STATIC);
+            sqlite3_bind_text(stmt, i+2, wildcards(args.now_location).c_str(), args.now_location.size() + 2, SQLITE_TRANSIENT);
         else if(bindings[i] == "any")
-            sqlite3_bind_text(stmt, i+1, any.c_str(), any.size(), SQLITE_STATIC);
+            sqlite3_bind_text(stmt, i+2, wildcards(any).c_str(), any.size() + 2, SQLITE_TRANSIENT);
         else if(bindings[i] == "mineral")
         {
             // for items in lists, items are deleted as they are added so SQLITE_TRANSIENT is specified to make sqlite make a copy of the string before continuing
-            sqlite3_bind_text(stmt, i+1, args.mineral[0].c_str(), args.mineral[0].size(), SQLITE_TRANSIENT);
+            sqlite3_bind_text(stmt, i+2, wildcards(args.mineral[0]).c_str(), args.mineral[0].size() + 2, SQLITE_TRANSIENT);
             args.mineral.erase(args.mineral.begin()); // erase item so all items in the list are bound. order it irrelevant
         }
         else if(bindings[i] == "colour")
         {
-            sqlite3_bind_text(stmt, i+1, args.colours[0].c_str(), args.colours[0].size(), SQLITE_TRANSIENT);
+            sqlite3_bind_text(stmt, i+2, wildcards(args.colours[0]).c_str(), args.colours[0].size() + 2, SQLITE_TRANSIENT);
             args.colours.erase(args.colours.begin());
         }
     }
@@ -777,6 +786,7 @@ const char * search_minerals(mineral_entry args, std::string any, int argnum, se
             }
         }
         sqlite3_finalize(stmt); // end the query and delete the query object
+        sort_items(matched.results, "Minerals", matched.sort_ascending, matched.sort_mask);
         return 0;
     }
 
@@ -868,27 +878,27 @@ const char * search_minerals(mineral_entry args, std::string any, int argnum, se
     for(int i = 0; i < nth; i++)
     {
         if(bindings[i] == "name")
-            sqlite3_bind_text(stmt, i+1, args.name.c_str(), args.name.size(), SQLITE_STATIC);
+            sqlite3_bind_text(stmt, i+1, wildcards(args.name).c_str(), args.name.size() + 2, SQLITE_TRANSIENT);
         else if(bindings[i] == "description")
-            sqlite3_bind_text(stmt, i+1, args.description.c_str(), args.description.size(), SQLITE_STATIC);
+            sqlite3_bind_text(stmt, i+1, wildcards(args.description).c_str(), args.description.size() + 2, SQLITE_TRANSIENT);
         else if(bindings[i] == "structure")
-            sqlite3_bind_text(stmt, i+1, args.structure.c_str(), args.structure.size(), SQLITE_STATIC);
+            sqlite3_bind_text(stmt, i+1, wildcards(args.structure).c_str(), args.structure.size() + 2, SQLITE_TRANSIENT);
         else if(bindings[i] == "composition")
-            sqlite3_bind_text(stmt, i+1, args.composition.c_str(), args.composition.size(), SQLITE_STATIC);
+            sqlite3_bind_text(stmt, i+1, wildcards(args.composition).c_str(), args.composition.size() + 2, SQLITE_TRANSIENT);
         else if(bindings[i] == "category")
-            sqlite3_bind_text(stmt, i+1, args.category.c_str(), args.category.size(), SQLITE_STATIC);
+            sqlite3_bind_text(stmt, i+1, wildcards(args.category).c_str(), args.category.size() + 2, SQLITE_TRANSIENT);
         else if(bindings[i] == "any")
-            sqlite3_bind_text(stmt, i+1, any.c_str(), any.size(), SQLITE_STATIC);
+            sqlite3_bind_text(stmt, i+1, wildcards(any).c_str(), any.size() + 2, SQLITE_TRANSIENT);
         else if(bindings[i] == "varieties")
         {
             // for list items, each value in the list needs to be independently bound
-            sqlite3_bind_text(stmt, i+1, args.varieties[0].c_str(), args.varieties[0].size(), SQLITE_TRANSIENT); // as items are deleted, SQLITE_TRANSIENT tells sqlite to make it's own copy
+            sqlite3_bind_text(stmt, i+1, wildcards(args.varieties[0]).c_str(), args.varieties[0].size() + 2, SQLITE_TRANSIENT); // as items are deleted, SQLITE_TRANSIENT tells sqlite to make it's own copy
             // delete the item just processed
             args.varieties.erase(args.varieties.begin());
         }
         else if(bindings[i] == "colour")
         {
-            sqlite3_bind_text(stmt, i+1, args.colours[0].c_str(), args.colours[0].size(), SQLITE_TRANSIENT);
+            sqlite3_bind_text(stmt, i+1, wildcards(args.colours[0]).c_str(), args.colours[0].size() + 2, SQLITE_TRANSIENT);
             args.colours.erase(args.colours.begin());
         }
     }
@@ -928,7 +938,7 @@ const char * get_table_records(const std::string tablename, int &counts)
     sqlite3_stmt *stmt; // query object
 
     // COUNT(*) gets the number of entries in the table
-    sql = "SELECT COUNT(*) FROM "+tablename+";";
+    sql = "SELECT COUNT(*) FROM \""+tablename+"\";";
 
     // prepare the statement
     sqlite3_prepare_v2(db, sql.c_str(), sql.size(), &stmt, NULL);
@@ -972,10 +982,9 @@ const char * new_collection_row(collection_entry &colEntry, const std::string ta
     // ?n indicates a binding site corresponding to a column
     // the correct value will be bound later
     // this prevents sql injection
-    sql = "INSERT INTO "+tablename+" (PurchaseNumber,PurchaseNumberOrder,Name,MineralType,Description,Colours,Date,"\
+    sql = "INSERT INTO \""+tablename+"\" (PurchaseNumber,PurchaseNumberOrder,Name,MineralType,Description,Colours,Date,"\
           "PurchaseLocation,Notes,Cost,Buyer,CurrentLocation,Images,Texture)"\
           " VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,?11,?12,?13,?14);";
-
     // prepare the statement
     sqlite3_prepare_v2(db, sql.c_str(), sql.size(), &stmt, NULL);
 
@@ -1062,10 +1071,10 @@ const char * new_collection_row(collection_entry &colEntry, const std::string ta
 
     /*====================================================*/
     // replace all forward slashes with backslashes in the image path
-    for(unsigned int i = 0; i < colEntry.images.size(); i++)
+    for(unsigned int i = 0; i < colEntry.source_images.size(); i++)
     {
-        sanitise_path(colEntry.images[i]);
-        colEntry.images[i] = assimilate_image(image_path, colEntry.images[i]);
+        sanitise_path(colEntry.source_images[i]);
+        colEntry.images.push_back(assimilate_image(image_path, colEntry.source_images[i]));
     }
     // convert the collection_entry::images list to a string of comma separated values, as commas could appear in file names but pipes cannot
     images = vec_to_sepstring(colEntry.images, true);
@@ -1165,10 +1174,10 @@ const char * new_mineral_row(mineral_entry &minEntry, const std::string image_pa
 
     /*====================================================*/
     // replace all forward slashes with backslashes in the image path
-    for(unsigned int i = 0; i < minEntry.images.size(); i++)
+    for(unsigned int i = 0; i < minEntry.source_images.size(); i++)
     {
-        sanitise_path(minEntry.images[i]);
-        minEntry.images[i] = assimilate_image(image_path, minEntry.images[i]);
+        sanitise_path(minEntry.source_images[i]);
+        minEntry.images.push_back(assimilate_image(image_path, minEntry.source_images[i]));
     }
     // convert the mineral_entry::images list to a string of pipe separated values, as commas could appear in file names but pipes cannot
     images = vec_to_sepstring(minEntry.images, true);
@@ -1269,7 +1278,7 @@ const char * does_exist(const std::string table, int num, std::string matchstrin
     else
     {
         // in collection-type tables, look for an item with the same purchase number and order in purchase
-        sql = "SELECT ROWID FROM "+table+" WHERE PurchaseNumber=?1 AND PurchaseNumberOrder=?2;";
+        sql = "SELECT ROWID FROM \""+table+"\" WHERE PurchaseNumber=?1 AND PurchaseNumberOrder=?2;";
         sqlite3_prepare_v2(db, sql.c_str(), sql.size(), &stmt, NULL); // prepare query
         sqlite3_bind_int(stmt, 1, num); // bind purchase number to sql condition
         sqlite3_bind_text(stmt, 2, matchstring.c_str(), matchstring.size(), SQLITE_STATIC); // bind order in purchase into the query
@@ -1327,7 +1336,7 @@ const char * update_mineral_item(mineral_entry to_update, mineral_entry &active_
     }
 
     // set update condition to the ROWID of the item to update
-    // as the ROWID condition is the only bind site that is guaranteed to appear in any query, it is assigned binding site 1
+    // as the ROWID condition is one of two bind sites that are guaranteed to appear in any query, it is assigned binding site 2
     sql += " WHERE ROWID=?1";
 
     sqlite3_prepare_v2(db, sql.c_str(), sql.size(), &stmt, NULL); // prepare sql query
@@ -1383,15 +1392,19 @@ const char * update_mineral_item(mineral_entry to_update, mineral_entry &active_
         }
         else if(update_columns[i] == "images")
         {
-            if(to_update.images.size() == 0)
+            if(to_update.source_images.size() == 0)
                 sqlite3_bind_null(stmt, i+2);
             else                
             {
-                for (unsigned int i = 0; i < to_update.images.size(); i++)
+                for (unsigned int i = 0; i < to_update.source_images.size(); i++)
                 {
-                    if (namepart(to_update.images[i]) != to_update.images[i])
+                    if (w_namepart(to_update.source_images[i]) != to_update.source_images[i])
                     {
-                        to_update.images[i] = assimilate_image(image_path, to_update.images[i]);
+                        to_update.images.push_back( assimilate_image(image_path, to_update.source_images[i]));
+                    }
+                    else
+                    {
+                        to_update.images.push_back(wstr_trunc(to_update.source_images[i]));
                     }
                 }
                 // for list type items, first convert the vector to a pipe separated string, as commas could appear in file names but pipes can't
@@ -1456,24 +1469,25 @@ const char * update_collection_item(collection_entry to_update, collection_entry
     // column names corresponding to the aliases above
     std::vector<std::string> columns = {"PurchaseNumber","PurchaseNumberOrder","Name","MineralType","Description","Colours","Date","PurchaseLocation","Notes","Cost","Buyer","CurrentLocation","Texture","Images"};
 
-    sql = "UPDATE "+tablename+" SET "; // first part of the UPDATE sql query
+    sql = "UPDATE \""+tablename+"\" SET "; // first part of the UPDATE sql query
 
     for(unsigned int i = 0; i < update_columns.size(); i++) // for each column alias
     {
          it = std::find(aliases.begin(), aliases.end(), update_columns[i]); // find the position of the alias in aliases
          dist = std::distance(aliases.begin(), it); // convert this to an integer
          sql += columns[dist]; // add the column name corresponding to the alias given
-         sql += "=?" + std::to_string(i+2); // set bind point. this starts at 2, as the ROWID will always occupy binding site ?1
+         sql += "=?" + std::to_string(i+2); // set bind point. this starts at 3, as the ROWID will always occupy binding site ?1
          if(i != update_columns.size() - 1) // if alias is not the last in the list
             sql += ", "; // add a comma to separate this item from the next
     }
 
     // set update condition to the ROWID of the item to update
-    // as the ROWID condition is the only bind site that is guaranteed to appear in any query, it is assigned binding site 1
+    // as the ROWID condition is guaranteed to appear in any query, it is assigned binding site 1
     sql += " WHERE ROWID=?1";
 
     sqlite3_prepare_v2(db, sql.c_str(), sql.size(), &stmt, NULL); // prepare sql query
 
+    sqlite3_bind_text(stmt, 1, tablename.c_str(), tablename.size(), SQLITE_STATIC);
     sqlite3_bind_int(stmt, 1, active_item.id); // bind ROWID to WHERE condition
 
     for(unsigned int i = 0; i < update_columns.size(); i++) // for each alias
@@ -1561,15 +1575,15 @@ const char * update_collection_item(collection_entry to_update, collection_entry
         }
         else if(update_columns[i] == "images")
         {
-            if(to_update.images.size() == 0)
+            if(to_update.source_images.size() == 0)
                 sqlite3_bind_null(stmt, i+2);
             else
             {
-                for (unsigned int i = 0; i < to_update.images.size(); i++)
+                for (unsigned int i = 0; i < to_update.source_images.size(); i++)
                 {
-                    if (namepart(to_update.images[i]) != to_update.images[i])
+                    if (w_namepart(to_update.source_images[i]) != to_update.source_images[i])
                     {
-                        to_update.images[i] = assimilate_image(image_path, to_update.images[i]);
+                        to_update.images.push_back( assimilate_image(image_path, to_update.source_images[i]));
                     }
                 }
                 // for list type items, first convert the vector to a pipe separated string, as commas could appear in file names but pipes can't
@@ -1635,10 +1649,10 @@ const char * delete_row(const std::string table, int rowid)
     int rc = 0; // error code object
 
     if(rowid == -1)
-        sql = "DELETE FROM "+table; // sql query for deleting everything in a table
+        sql = "DELETE FROM \""+table+"\""; // sql query for deleting everything in a table
     else
     {
-        sql = "DELETE FROM "+table+" WHERE ROWID=?1"; // sql query for deleting a row
+        sql = "DELETE FROM \""+table+"\" WHERE ROWID=?1"; // sql query for deleting a row
     }
 
     sqlite3_prepare_v2(db, sql.c_str(), sql.size(), &stmt, NULL); // prepare the statement
@@ -1762,9 +1776,9 @@ const char * make_table(std::string &tablename)
         collection-type tables can be created and deleted at will
         they store information about a collection of stones
     */
-    char *zErrMsg = 0; // pointer to error message
     int rc; // error code
     std::string sql;
+    sqlite3_stmt *stmt; // sql query object
 
     // censor tablename to remove all non-alphabetic characters
     // if censor() returns a non-zero value, there were no valid characters at all - ERROR
@@ -1773,7 +1787,7 @@ const char * make_table(std::string &tablename)
     // sql for creating a collection-type table
     // each line the is name of each column and the type of value that column stores
     // IF NOT EXISTS stops tables being overwritten
-    sql = "CREATE TABLE IF NOT EXISTS "+tablename+" ("\
+    sql = "CREATE TABLE IF NOT EXISTS \""+tablename+"\" ("\
                 "PurchaseNumber INTEGER,"\
                 "PurchaseNumberOrder TEXT,"\
                 "Name TEXT,"\
@@ -1789,11 +1803,12 @@ const char * make_table(std::string &tablename)
                 "Images TEXT,"\
                 "Texture INTEGER);";
 
-    // execute statement, with empty_callback() as nothing is returned
-    rc = sqlite3_exec(db, sql.c_str(), empty_callback, 0, &zErrMsg);
+    sqlite3_prepare_v2(db, sql.c_str(), sql.size(), &stmt, NULL);
+    rc = sqlite3_step(stmt); // execute statement
+    sqlite3_finalize(stmt);
 
-    if(rc != SQLITE_OK) // error
-        return zErrMsg;
+    if(rc != SQLITE_DONE) // error
+        return sqlite3_errmsg(db);
     return 0;
 }
 
@@ -1802,9 +1817,9 @@ const char * drop_table(program_config &config, const std::string tablename)
     /*
     deletes the table with name <tablename>, if it exists
     */
-    char *zErrMsg = 0; // pointer to error message
     int rc; // error code
     std::string sql;
+    sqlite3_stmt *stmt; // sql query object
 
     // remove all data pertaining to this table from memory
     if(tablename == config.collection_table) // if the table to be deleted is the current collection-type table
@@ -1855,12 +1870,14 @@ const char * drop_table(program_config &config, const std::string tablename)
         config.collection_table_list.erase(it);
     }
 
-    sql = "DROP TABLE IF EXISTS "+tablename+";"; // sql command for deleting a table
+    sql = "DROP TABLE IF EXISTS \""+tablename+"\";"; // sql command for deleting a table
 
-    rc = sqlite3_exec(db, sql.c_str(), empty_callback, 0, &zErrMsg); // execute
+    sqlite3_prepare_v2(db, sql.c_str(), sql.size(), &stmt, NULL);
+    rc = sqlite3_step(stmt); // execute statement
+    sqlite3_finalize(stmt);
 
-    if(rc != SQLITE_OK) // error
-        return zErrMsg;
+    if(rc != SQLITE_DONE) // error
+        return sqlite3_errmsg(db);
     return 0;
 }
 

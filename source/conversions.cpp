@@ -62,6 +62,24 @@ std::vector<std::string> JSConvert::to_vectorstring(JSValue j)
     return v;
 }
 
+std::vector<std::wstring> JSConvert::to_vectorwstring(JSValue j)
+{
+    JSArray jarray = j.ToArray();
+    std::vector<std::wstring> v;
+
+    for (unsigned int i = 0; i < jarray.size(); i++)
+    {
+        std::wstring widestring;
+        for (unsigned int j = 0; j < jarray[i].ToString().length(); j++)
+        {
+            wchar16 widechar = jarray[i].ToString().data()[j];
+            widestring += (wchar_t)widechar;
+        }
+        v.push_back(widestring);
+    }
+    return v;
+}
+
 std::vector<int> JSConvert::to_vectorint(JSValue j)
 {
     JSArray jarray = j.ToArray();

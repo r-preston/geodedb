@@ -3,9 +3,29 @@
 #include <algorithm>
 #include <fstream>
 #include <cmath>
+#include <locale>
+#include <codecvt>
 
 #include "headers/structures.h"
 #include "headers/stonebase.h"
+
+std::string wstr_trunc(std::wstring w)
+{
+    std::string str;
+    for (unsigned int i = 0; i < w.size(); i++)
+    {
+        wchar_t nullchar = 0;
+        // because Windows and character sets get on about as well as a bagful of cats, I can't allow anything but ASCII otherwise it'll get mangled.
+        // Damn you, Microsoft.
+        if(w[i] - nullchar > 127) 
+        {
+            w[i] = '_';
+            if(w.size() > i + 1) w.erase(i + 1, 1);
+        }
+    }
+    std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+    return converter.to_bytes(w);
+}
 
 std::string byte_to_string(int i)
 {
@@ -57,6 +77,12 @@ std::string namepart(std::string filepath)
     return filepath.substr(t+1);
 }
 
+std::wstring w_namepart(std::wstring filepath)
+{
+    size_t t = filepath.find_last_of('/');
+    return filepath.substr(t+1);
+}
+
 const char * plural_correction(const int i)
 {
     if(i == 1) return "";
@@ -66,19 +92,19 @@ const char * plural_correction(const int i)
 int censor(std::string &word)
 {
     /*
-    censor removes every character in a string that is not a letter of the alphabet
-    this is used on table names
-    if you type in 'ch335ec@k3' for a table name, it will automatically be converted to 'check'
+    censor removes every character in a string that is not a printable ASCII character
+    these are characters from 32-126
     */
-    std::string valid_chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
     std::string newword = "";
 
-    for(auto c:word)
+    for(char c:word)
     {
         // iterate through each letter of word
-        if(valid_chars.find(c) != std::string::npos)
+        printf("%i", c - 0);
+        if((c - 0 > 31) && (c - 0 < 127))
         {
-            // if c is in valid_chars, add to newword
+            printf("%c",c);
+            // if c is not in invalid_chars, add to newword
             newword += c;
         }
     }
@@ -321,7 +347,7 @@ std::vector<int> string_to_vector_int(std::string s)
 std::ifstream::streampos filesize(const char* filename)
 {
     std::ifstream in(filename, std::ios::ate | std::ios::binary);
-    return in.tellg(); 
+    return in.tellg();
 }
 
 std::string pence_to_pounds(int pence)
@@ -414,6 +440,26 @@ std::string visualise_vector(std::vector<std::string> v)
         result += v[v.size()-1];
     }
     return result;
+}
+
+void sanitise_path(std::wstring &path)
+{
+    /*
+    Both ShellExecute for windows and Unix-like systems prefer a forward slash (/) instead of a backslash (\) as a separator in file paths
+    this function replaces all forward slashes in a wstring with backslashes
+    */
+
+    std::wstring adjusted_path; // stores new path
+
+    for(auto c:path) // for every character in the given path
+    {
+        if(c == '\\') // if that character is a forward slash
+            adjusted_path += '/'; // add a backslash to the new path instead (\\ is the control character for backslash in an std::string or char *)
+        else
+            adjusted_path += c; // otherwise add character to new path
+    }
+
+    path = adjusted_path; // set path to new path
 }
 
 void sanitise_path(std::string &path)
@@ -565,31 +611,6 @@ void escape_string(std::string &s)
         s.replace(pos, 2, "\n"); // replace it with the line feed character
         pos = s.find("\\n"); // look for target again
     }
-}
-
-void nullify_collection_fields(collection_entry &centr)
-{
-    /*
-    change all empty std::string fields in a collection_entry to '~'
-    this ensures proper treatment when adding new row
-    */
-
-    if(centr.order == "")
-        centr.order = "~";
-    if(centr.name == "")
-        centr.name = "~";
-    if(centr.description == "")
-        centr.description = "~";
-    if(centr.date == "")
-        centr.date = "~";
-    if(centr.buyer == "")
-        centr.buyer = "~";
-    if(centr.notes == "")
-        centr.notes = "~";
-    if(centr.buy_location == "")
-        centr.buy_location = "~";
-    if(centr.now_location == "")
-        centr.now_location = "~";
 }
 
 void nullify_mineral_fields(mineral_entry &mentr)
@@ -810,7 +831,7 @@ bool check_csv_line(std::string & data, const int verification)
     return true;
 }
 
-std::vector<std::string> parse_input_file(std::string filename, std::string tablename, int errorfree = 0)
+std::vector<std::string> parse_input_file(std::wstring filename, std::string tablename, int errorfree = 0)
 {
     std::vector<std::string> errors, identifiers, idbuffer, databuffer, overwrite_abbreviations, overwrite;
     std::vector<int> verification;
@@ -833,7 +854,7 @@ std::vector<std::string> parse_input_file(std::string filename, std::string tabl
     {
         overwrite_abbreviations = {"order", "name", "desc", "date", "from", "notes", "buyer", "location", "num", "cost", "texture", "images", "type", "colours"};
         // 0 = none required, 1 = integer, 2 = date, 3 = contains no numbers, 4 = money, 5 = texture, 6 = nothing, but don't return tilde
-        identifiers = {"Purchase number", "Order in purchase", "Name", "Description", "Mineral types", "Colours", "Notes", 
+        identifiers = {"Purchase number", "Order in purchase", "Name", "Description", "Mineral types", "Colours", "Notes",
                        "Buyer", "Cost", "Date of purchase", "Purchase location", "Current location", "Texture"};
         verification = {1, 3, 0, 0, 6, 6, 0, 0, 4, 2, 0, 0, 5};
         entry_count = 13;
@@ -854,7 +875,7 @@ std::vector<std::string> parse_input_file(std::string filename, std::string tabl
             continue;
         }
         interpret_excel_output(line);
-        
+
         if (idbuffer.size() < entry_count)
         {
             idbuffer.push_back(line.substr(0, line.find(',')));
@@ -870,8 +891,8 @@ std::vector<std::string> parse_input_file(std::string filename, std::string tabl
                 }
                 else if (std::find(identifiers.begin() + i + 1, identifiers.end(), idbuffer[i]) != identifiers.end())
                 {
-                    errors.push_back("Line "+s(linenum - idbuffer.size() + 
-                                     (std::find(identifiers.begin() + i + 1, identifiers.end(), idbuffer[i])) - identifiers.begin() ) + 
+                    errors.push_back("Line "+s(linenum - idbuffer.size() +
+                                     (std::find(identifiers.begin() + i + 1, identifiers.end(), idbuffer[i])) - identifiers.begin() ) +
                                      ": row identifier '"+ idbuffer[i] +"' is duplicated");
                 }
 
@@ -971,12 +992,9 @@ std::vector<std::string> parse_input_file(std::string filename, std::string tabl
                     }
                     else if (errorfree != 1)
                     {
-                        for (int j = 0; j < 1000; j++)
-                        {
-                            const char * errmsg = new_collection_row(centry, tablename, "");
-                            if(errmsg) errors.push_back("fail");
-                            else errors.push_back("success");
-                        }
+                        const char * errmsg = new_collection_row(centry, tablename, "");
+                        if(errmsg) errors.push_back("fail");
+                        else errors.push_back("success");
                     }
                 }
             }
@@ -991,4 +1009,14 @@ std::vector<std::string> parse_input_file(std::string filename, std::string tabl
     }
 
     return errors;
+}
+
+std::vector<std::string> parse_input_file(std::string filename, std::string tablename, int errorfree = 0)
+{
+    std::wstring wfilename;
+
+    std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+    wfilename = converter.from_bytes(filename);
+
+    return parse_input_file(wfilename, tablename, errorfree);
 }
