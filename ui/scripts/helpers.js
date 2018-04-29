@@ -330,7 +330,6 @@ function is_integer(s, allow_void)
     {
         if(digits.indexOf(s.toString()[i]) === -1) // if n is not a number
         {
-            ui.printmsg("the offending char is '"+s.toString()[i]+"'");
             return false;
         }
     }

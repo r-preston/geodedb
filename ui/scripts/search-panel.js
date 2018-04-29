@@ -317,6 +317,7 @@ function remove_table(tablename, prev_table)
         ui.arbitrary_js("choose_new_table");
         if(prev_table !== program_config.table)
         {
+            remove_collection_results();
             ui.add_collection_items();
         }
     }
