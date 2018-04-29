@@ -1,15 +1,26 @@
 #ifndef DATABASE_ACCESS_HELPER_FUNCTIONS
 #define DATABASE_ACCESS_HELPER_FUNCTIONS
 
+#include <locale>
+#include <codecvt>
+
 #include "parsing.h"
 
 // a filthy hack for populating a pointer to a vector with strings via a void*
 // see table_callback()
 typedef std::vector<std::string> table_type;
 
-std::string assimilate_image(std::string image_path, std::string path)
+std::string wildcards(std::string pattern)
 {
-    std::string filename = namepart(path);
+    pattern = "%" + pattern + "%";
+    return pattern.c_str();
+}
+
+std::string assimilate_image(std::string image_path, std::wstring path)
+{
+    std::string filename = wstr_trunc(path);
+    filename = namepart(filename);
+
     int i = 1;
     bool exists = false;
     size_t ext_pos;
@@ -38,7 +49,7 @@ std::string assimilate_image(std::string image_path, std::string path)
     if(exists) filename += extension;
 
     std::ifstream src(path, std::ios::binary);
-    std::ofstream dst(image_path+filename, std::ios::binary);
+    std::ofstream dst(image_path+filename, std::ios::binary | std::ios::ate);
     dst << src.rdbuf();
 
     return filename;
@@ -52,7 +63,7 @@ bool datestrcomp(std::string a, std::string b, int type)
     the strings could be XX or XXXX, which means they could stand for any number
     */
 
-    if(a == "XX" || a == "XXXX")
+    if(b == "XX" || b == "XXXX" || a == "XX" || a == "XXXX")
         return true;
     if (type < 0)
         return a < b; // true if a<b, otherwise false
@@ -102,30 +113,35 @@ bool datecmp(std::string query, std::string model, int type = -1)
         // if any part of the date does not match, dates are not the same
         return false;
     }
-
-    if( datestrcomp(qyear,myear,type) )
+    
+    if (datestrcomp(qyear, myear, 0))
     {
-        if( datestrcomp(qmonth,mmonth,type) )
+        if (datestrcomp(qmonth, mmonth, 0))
         {
-            if( datestrcomp(qday,mday,type) ) return true;
+            if (datestrcomp(qday, mday, 0))
+            {
+                return false;
+            }
+            else
+            {
+                if(datestrcomp(qday, mday, type))
+                    return true;
+                return false;
+            }
         }
-    }  
-    /*if( datestrcomp(qyear,myear,type) )
-    {
-        return true; // if one year if different to the other, the month and day are irrelevant
+        else
+        {
+            if(datestrcomp(qmonth, mmonth, type))
+                return true;
+            return false;
+        }
     }
-    else if(!datestrcomp(qyear,myear,type*-1))
+    else
     {
-        // if years are the same, check the month
-        if( datestrcomp(qmonth,mmonth,type) )
-            return true; // if months are different, day is irrelevant
-        else if(!datestrcomp(qmonth,mmonth,type*-1))
-        {
-            // if the months are the same, check the day
-            // this will decide if the dates are < or > to each other
-            if( datestrcomp(qday,mday,type) ) return true;
-        }
-    }*/
+        if(datestrcomp(qyear, myear, type))
+            return true;
+        return false;
+    }
 
     // if none of the above conditions are matched, the dates no not satisfy the condition
     return false;
@@ -162,9 +178,9 @@ int table_callback(void *data, int columncount, char **fields, char **columns)
 // 2 argument comparison functions used with std::sort()
 
 // calls datecmp with the less than parameter, for use with std::sort
-bool datecmp_less_only(std::string query, std::string model){ return datecmp(query, model, -1); }
+bool datecmp_less_only(std::string query, std::string model){ return datecmp(query, model, 1); }
 // calls datecmp with the less than parameter, for use with std::sort
-bool datecmp_grtr_only(std::string a, std::string b){ return datecmp(a, b, 1); }
+bool datecmp_grtr_only(std::string a, std::string b){ return datecmp(a, b, -1); }
 // used with std::sort, makes std::sort sort in descending order
 bool int_sort_desc(int a, int b){ return a > b; }
 // used with std::sort, makes std::sort sort in descending order

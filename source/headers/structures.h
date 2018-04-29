@@ -34,6 +34,7 @@ struct collection_entry
     std::string now_location; // where does it live now - usually Bowl or Cabinet
     std::vector<std::string> mineral; // list of minerals composing the stone
     std::vector<std::string> images; // list of image paths
+    std::vector<std::wstring> source_images; // list of wide character images used solely for saving images with unusual characters in their names
     std::vector<std::string> colours; // list of colour present in the stone
     collection_entry()
     {
@@ -58,6 +59,7 @@ struct mineral_entry
     std::vector<std::string> varieties; // list of names of varieties
     std::vector<std::string> colours; // list of common colours
     std::vector<std::string> images; // list of image paths
+    std::vector<std::wstring> source_images; // list of wide character images used solely for saving images with unusual characters in their names
     mineral_entry()
     {
         // initialises all integer values to -1, which indicates a NULL value

@@ -13,6 +13,8 @@
 
 using namespace Awesomium;
 
+WebString WideWebString(std::wstring);
+
 class JSConvert
 {
 public:
@@ -22,6 +24,7 @@ public:
     JSValue to_js(std::vector<std::string> v);
     JSValue to_js(std::vector<int> v);
 
+    std::vector<std::wstring> to_vectorwstring(JSValue j);
     std::string to_string(JSValue j);
     bool to_bool(JSValue j);
     int to_int(JSValue j);

@@ -2,6 +2,7 @@
 #define USERINPUT_PARSING_HEADER
 
 #include <fstream>
+
 #include "structures.h"
 
 // determines whether the program should run in portable mode or not, see definition for more info
@@ -17,6 +18,10 @@ std::string byte_to_string(bool);
 
 // returns the part of a file path after the last slash, i.e. the file name
 std::string namepart(std::string filepath);
+std::wstring w_namepart(std::wstring filepath);
+
+// converts a wstring into a string
+std::string wstr_trunc(std::wstring w);
 
 // returns 's' if the argument is not 1
 inline const char * plural_correction(const int);
@@ -73,12 +78,14 @@ std::string visualise_vector(std::vector<std::string> v);
 
 // replaces all forward slashes in a string with backslashes
 void sanitise_path(std::string &path);
+void sanitise_path(std::wstring &path);
 
 // creates an example file to be read by the add_from_file function
 void example_file(bool collection);
 
 // verify a file to be read by add_from_file(), returning a list of syntactical errors
-std::vector<std::string> parse_input_file(std::string filename, std::string collection, int errorfree = 0);
+std::vector<std::string> parse_input_file(std::wstring filename, std::string collection, int errorfree = 0);
+std::vector<std::string> parse_input_file(std::string filename, std::string tablename, int errorfree = 0);
 
 // like vec_to_str but for ints rather than strings
 std::string vector_int_to_string(std::vector<int> v);
