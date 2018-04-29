@@ -87,6 +87,7 @@ Source: "{#source_path}ui/resource/x_over.png"; DestDir: "{app}/ui/resource"; Fl
 ; misc components   
 Source: "{#source_path}Minerals.xlsx"; DestDir: "{app}"; Flags: ignoreversion;
 Source: "{#source_path}Collection.xlsx"; DestDir: "{app}"; Flags: ignoreversion; 
+Source: "{#source_path}vc_redist.x86.exe"; DestDir: {tmp}; Flags: deleteafterinstall
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
@@ -95,5 +96,5 @@ Name: "{userprograms}\GeodeDB"; Filename: "{app}\geodedb.exe"
 Name: "{commondesktop}\GeodeDB"; Filename: "{app}\geodedb.exe"; Tasks: desktopicon
 
 [Run]
+Filename: {tmp}\vc_redist.x86.exe; Parameters: "/install /passive /norestart"; StatusMsg: Installing VC++ 2015 Redistributables...
 Filename: "{app}\geodedb.exe"; Description: "{cm:LaunchProgram,GeodeDB}"; Flags: nowait postinstall skipifsilent
-
