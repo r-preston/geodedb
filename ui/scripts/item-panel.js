@@ -134,6 +134,11 @@ function display_mineral_item()
             mineral_current_image = 0;
             program_config.mineral_current_image = mineral_current_image;
         }
+        if((mineral_current_image + 1) > m_item.images.length)
+        {
+            mineral_current_image = 0;
+            program_config.mineral_current_image = mineral_current_image;
+        }
 
         var imgpath = "url('" + (program_config.image_path) + m_item.images[mineral_current_image] + "')";
         document.getElementById("mineral-image").style.backgroundImage = imgpath;
@@ -272,6 +277,12 @@ function display_collection_item()
             collection_current_image = 0
             program_config.collection_current_image = 0;
         }
+        if((collection_current_image + 1) > c_item.images.length)
+        {
+            collection_current_image = 0;
+            program_config.collection_current_image = collection_current_image;
+        }
+
         document.getElementById("collection-image").style.backgroundImage = "url('"+program_config.image_path+ c_item.images[collection_current_image] + "')";
         document.getElementById("collection-image-count").innerHTML = (collection_current_image + 1) + "/" + c_item.images.length;
         deactivate_arrow("collection", "left");

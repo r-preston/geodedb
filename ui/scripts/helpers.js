@@ -6,11 +6,15 @@ function namepart(filepath)
 
 function replace_newlines(input)
 {
-    output = "<div>";
-    output += input;
-    output = output.replace(/\n/g, "</div><div>");
-    output += "</div>";
-    return output;
+    if(input.indexOf("\n") !== -1)
+    {
+        output = "<div>";
+        output += input;
+        output = output.replace(/\n/g, "</div><div>");
+        output += "</div>";
+        return output;
+    }
+    return input;
 }
 
 function list_comp(lst_one, lst_two)
