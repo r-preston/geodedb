@@ -361,6 +361,9 @@ void ProgramInstance::BindMethods(WebView* web_view)
                                 WSLit("remove_collection_image"),
                                 JSDelegate(this, &ProgramInstance::remove_collection_image));
         method_dispatcher_.Bind(app_object,
+                                WSLit("view_image"),
+                                JSDelegate(this, &ProgramInstance::view_image));
+        method_dispatcher_.Bind(app_object,
                                 WSLit("remove_mineral_image"),
                                 JSDelegate(this, &ProgramInstance::remove_mineral_image));
         method_dispatcher_.Bind(app_object,

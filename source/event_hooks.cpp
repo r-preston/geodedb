@@ -9,6 +9,63 @@
 
 // defines C++ event hooks for JS events.
 // These can be triggered from JavaScript as methods of the global 'ui' object
+void ProgramInstance::view_image(WebView* web_view, const JSArray& args)
+{
+    std::string error = "";
+    bool is_collection = (args[0].ToString() == WSLit("collection-image"));
+
+    TCHAR NPath[MAX_PATH];
+    GetCurrentDirectory(MAX_PATH, NPath);
+    std::string abs_path = (std::string)NPath;
+    sanitise_path(abs_path);
+    abs_path += "/";
+
+    std::string chosen_image = "";
+    if (is_collection)
+    {
+        if(config->collection_current_image == -1) return;
+        if(config->collection_current_image + 1 > (int)config->active_collection_item.images.size()) return;
+        if(config->active_collection_item.images.size() == 0) return;
+        chosen_image = config->active_collection_item.images[config->collection_current_image];
+    }
+    else
+    {
+        if(config->mineral_current_image == -1) return;
+        if(config->mineral_current_image + 1 > (int)config->active_mineral_item.images.size()) return;
+        if(config->active_mineral_item.images.size() == 0) return;
+        chosen_image = config->active_mineral_item.images[config->mineral_current_image];
+    }
+
+    HINSTANCE hInstance = ShellExecute(0, 0, (abs_path + config->image_path + chosen_image).c_str(), 0, 0 , SW_SHOW );
+
+    intptr_t err = (intptr_t)hInstance;
+
+    if(err > 32)
+        return;
+
+    if(err == ERROR_FILE_NOT_FOUND || err == ERROR_PATH_NOT_FOUND || err == SE_ERR_FNF || err == SE_ERR_PNF)
+    {
+        error = "No such file '" + chosen_image + "'";
+    }
+    else if(err == SE_ERR_NOASSOC)
+    {
+        size_t p = chosen_image.find('.');
+        error = "No file association for extension " + chosen_image.substr(p) + " - cannot open file";
+    }
+    else if(err == SE_ERR_ACCESSDENIED)
+        error = "Access denied by OS";
+    else
+        error = "Operating system error";
+
+    if (error != "")
+    {
+        JSArray errmsg;
+        errmsg.Push(ToWebString(error));
+        errmsg.Push(JSValue(false));
+        window.InvokeAsync( WSLit("status"), errmsg);
+    }
+}
+
 void ProgramInstance::remove_mineral_image(WebView* web_view, const JSArray& args)
 {
     if (args.size())
