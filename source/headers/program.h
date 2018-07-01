@@ -67,6 +67,7 @@ public:
     void create_javascript_objects();
 
     // event hooks
+    void view_image(WebView* web_view, const JSArray& args);
     void remove_mineral_image(WebView* web_view, const JSArray& args);
     void remove_collection_image(WebView* web_view, const JSArray& args);
     void choose_images(WebView* web_view, const JSArray& args);
